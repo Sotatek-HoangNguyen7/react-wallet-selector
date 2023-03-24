@@ -81,6 +81,10 @@ function Connect() {
           )
         }
       })
+    } else {
+      window.ethereum.on('chainChanged', async (network) => {
+        console.log(network)
+      })
     }
   }, [])
 
@@ -120,6 +124,10 @@ function Connect() {
             inferredNonce: accountInfor.inferredNonce
           })
         )
+      })
+    } else {
+      window.ethereum.on('accountsChanged', async (accounts) => {
+        console.log(accounts)
       })
     }
   }, [])
@@ -375,9 +383,7 @@ function Connect() {
         <span className='text-danger'>{formatBalance(balance)}</span> Mina
       </div>
 
-      {localStorage.getItem('wallet') === 'Auro' ? (
-        null
-      ) : (
+      {localStorage.getItem('wallet') === 'Auro' ? null : (
         <div>
           <div className='mt-1 mb-2'>
             <b>Transactions:</b> <br />
