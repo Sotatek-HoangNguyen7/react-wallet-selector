@@ -157,8 +157,6 @@ function Connect() {
         } else dispatch(setWalletInstalled(false))
       } catch (e) {
         dispatch(setWalletInstalled(false))
-      } finally {
-        firstTimeRun.current = true
       }
     }
   }
@@ -258,7 +256,6 @@ function Connect() {
   }
 
   const handleChangeWallet = (e) => {
-    checkInstallWhenCallAction()
     const val = e.target.value || 'MetamaskFlask'
     setLoading(false)
     localStorage.setItem('wallet', val)
@@ -271,6 +268,9 @@ function Connect() {
         inferredNonce: ''
       })
     )
+    setTimeout(() => {
+      checkInstallWhenCallAction()
+    })
   }
 
   const handleChageNetWork = async (e) => {
