@@ -18,9 +18,9 @@ const ethers = require('ethers')
 
 function Connect() {
   const reduxDispatch = useAppDispatch()
-  const { isInstalledWallet, activeAccount, balance, transactions, network } =
+  const { isInstalledWallet, activeAccount, balance, transactions } =
     useAppSelector((state) => state.wallet)
-  const [value, setValue] = useState(network)
+  const [value, setValue] = useState('Mainnet')
   const [loading, setLoading] = useState(false)
   const [disableConectButton, setDisableConectButton] = useState(false)
 
@@ -82,8 +82,9 @@ function Connect() {
         }
       })
     } else {
-      window.ethereum.on('chainChanged', async (network) => {
-        console.log(network)
+      window.ethereum.on('chainChanged', async () => {
+        const nw = await WALLET.MetamaskFlask.methods.RequestNetwork()
+        setValue(nw)
       })
     }
   }, [])
