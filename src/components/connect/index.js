@@ -11,9 +11,11 @@ import {
   connectWallet,
   setActiveAccount,
   setTransactions,
-  setNetWork
+  setNetWork,
+  setWalletInstalled
 } from '../../slices/walletSlice'
 import { useHasWalet } from '../../hooks/useHasWalet'
+import detectEthereumProvider from '@metamask/detect-provider'
 
 const ethers = require('ethers')
 
@@ -136,9 +138,33 @@ function Connect() {
     }
   }, [])
 
+  const checkInstallWhenCallAction = async () => {
+    if (localStorage.getItem('wallet') === 'Auro') {
+      if (window.mina) dispatch(setWalletInstalled(true))
+      if (!window.mina) dispatch(setWalletInstalled(false))
+    } else {
+      try {
+        const provider = await detectEthereumProvider({
+          mustBeMetaMask: false,
+          silent: true,
+          timeout: 3000
+        })
+        const isFlask = (
+          await provider?.request({ method: 'web3_clientVersion' })
+        )?.includes('flask')
+        if (provider && isFlask) {
+          dispatch(setWalletInstalled(true))
+        } else dispatch(setWalletInstalled(false))
+      } catch (e) {
+        dispatch(setWalletInstalled(false))
+      } finally {
+        firstTimeRun.current = true
+      }
+    }
+  }
+
   const handleConnect = async () => {
-    if (window.mina) dispatch(setWalletInstalled(true))
-    if (!window.mina) dispatch(setWalletInstalled(false))
+    checkInstallWhenCallAction()
     setLoading(true)
     dispatch(setTransactions([]))
     dispatch(
@@ -232,6 +258,7 @@ function Connect() {
   }
 
   const handleChangeWallet = (e) => {
+    checkInstallWhenCallAction()
     const val = e.target.value || 'MetamaskFlask'
     setLoading(false)
     localStorage.setItem('wallet', val)
@@ -325,6 +352,28 @@ function Connect() {
 
   return (
     <div>
+      <div className='d-flex'>
+        <select
+          className='form-select form-select-md mb-3 w-300 d-flex justify-content-center'
+          aria-label='.form-select-lg example'
+          defaultValue={localStorage.getItem('wallet') || 'MetamaskFlask'}
+          onChange={handleChangeWallet}
+        >
+          <option value='MetamaskFlask'>Metamask Flask</option>
+          <option value='Auro'>Auro</option>
+        </select>
+        <select
+          disabled={localStorage.getItem('wallet') === 'Auro'}
+          className='form-select form-select-md mb-3 ms-3 w-150 d-flex justify-content-center'
+          aria-label='.form-select-lg example'
+          value={network}
+          onChange={handleChageNetWork}
+        >
+          <option value='Mainnet'>Mainnet</option>
+          <option value='Devnet'>Devnet</option>
+          <option value='Berkeley'>Berkeley</option>
+        </select>
+      </div>
       {!isInstalledWallet ? (
         <button
           type='button'
@@ -336,49 +385,25 @@ function Connect() {
             : 'Metamask Flask is required to run snap!'}
         </button>
       ) : (
-        <div>
-          <div className='d-flex'>
-            <select
-              className='form-select form-select-md mb-3 w-300 d-flex justify-content-center'
-              aria-label='.form-select-lg example'
-              defaultValue={localStorage.getItem('wallet') || 'MetamaskFlask'}
-              onChange={handleChangeWallet}
-            >
-              <option value='MetamaskFlask'>Metamask Flask</option>
-              <option value='Auro'>Auro</option>
-            </select>
-            <select
-              disabled={localStorage.getItem('wallet') === 'Auro'}
-              className='form-select form-select-md mb-3 ms-3 w-150 d-flex justify-content-center'
-              aria-label='.form-select-lg example'
-              value={network}
-              onChange={handleChageNetWork}
-            >
-              <option value='Mainnet'>Mainnet</option>
-              <option value='Devnet'>Devnet</option>
-              <option value='Berkeley'>Berkeley</option>
-            </select>
-          </div>
-          <button
-            disabled={disableConectButton}
-            type='button'
-            className='btn btn-primary btn-md d-flex justify-content-center'
-            onClick={handleConnect}
-          >
-            {loading ? (
-              <div style={{ position: 'relative' }}>
-                <div className='loader'>
-                  <div className='inner one' />
-                  <div className='inner two' />
-                  <div className='inner three' />
-                </div>
+        <button
+          disabled={disableConectButton}
+          type='button'
+          className='btn btn-primary btn-md d-flex justify-content-center'
+          onClick={handleConnect}
+        >
+          {loading ? (
+            <div style={{ position: 'relative' }}>
+              <div className='loader'>
+                <div className='inner one' />
+                <div className='inner two' />
+                <div className='inner three' />
               </div>
-            ) : null}
-            <span className={`${loading ? 'ms-2' : ''} m-auto`}>
-              Connect wallet
-            </span>
-          </button>
-        </div>
+            </div>
+          ) : null}
+          <span className={`${loading ? 'ms-2' : ''} m-auto`}>
+            Connect wallet
+          </span>
+        </button>
       )}
       <hr />
       <div className='mt-1 mb-2'>
@@ -388,7 +413,6 @@ function Connect() {
         <b>Balance:</b>{' '}
         <span className='text-danger'>{formatBalance(balance)}</span> Mina
       </div>
-
       {localStorage.getItem('wallet') === 'Auro' ? null : (
         <div>
           <div className='mt-1 mb-2'>
