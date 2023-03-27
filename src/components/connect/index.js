@@ -1,3 +1,4 @@
+/* eslint-disable no-inner-declarations */
 /* eslint-disable no-unused-expressions */
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-undef */
@@ -17,10 +18,10 @@ import { useHasWalet } from '../../hooks/useHasWalet'
 const ethers = require('ethers')
 
 function Connect() {
-  const reduxDispatch = useAppDispatch()
+  const dispatch = useAppDispatch()
   const { isInstalledWallet, activeAccount, balance, transactions, network } =
     useAppSelector((state) => state.wallet)
-  const [value, setValue] = useState('Mainnet')
+  const [value, setValue] = useState(network)
   const [loading, setLoading] = useState(false)
   const [disableConectButton, setDisableConectButton] = useState(false)
 
@@ -34,12 +35,17 @@ function Connect() {
   useHasWalet()
 
   useEffect(() => {
-    reduxDispatch(setNetWork(value))
+    dispatch(setNetWork(value))
   }, [value])
+
+  const requestNetWork = async () => {
+    const nw = await WALLET.MetamaskFlask.methods.RequestNetwork()
+    setValue(nw)
+  }
 
   useEffect(() => {
     if (localStorage.getItem('wallet') === 'Auro') {
-      window.mina.on('chainChanged', async (network) => {
+      window.mina?.on('chainChanged', async (network) => {
         const result = await WALLET.Auro.methods.connectToAuro()
         setValue(network)
         const isInstalled = window.mina
@@ -61,14 +67,14 @@ function Connect() {
               urlProxy
             )
           // const txList = await await WALLET.Auro.methods.getTxHistory(urlProxy, result.toString());
-          reduxDispatch(setTransactions([]))
-          reduxDispatch(
+          dispatch(setTransactions([]))
+          dispatch(
             connectWallet({
               accountList,
               isInstalled
             })
           )
-          reduxDispatch(
+          dispatch(
             setActiveAccount({
               activeAccount: accountInfor.publicKey,
               balance: ethers.utils.formatUnits(
@@ -82,16 +88,13 @@ function Connect() {
         }
       })
     } else {
-      window.ethereum.on('chainChanged', async () => {
-        const nw = await WALLET.MetamaskFlask.methods.RequestNetwork()
-        setValue(nw)
-      })
+      requestNetWork()
     }
   }, [])
 
   useEffect(() => {
     if (localStorage.getItem('wallet') === 'Auro') {
-      window.mina.on('accountsChanged', async (accounts) => {
+      window.mina?.on('accountsChanged', async (accounts) => {
         const isInstalled = window.mina
         setLoading(false)
         const accountList = await WALLET.Auro.methods.AccountList()
@@ -107,14 +110,14 @@ function Connect() {
             urlProxy
           )
         // const txList = await await WALLET.Auro.methods.getTxHistory(urlProxy, result.toString());
-        reduxDispatch(setTransactions([]))
-        reduxDispatch(
+        dispatch(setTransactions([]))
+        dispatch(
           connectWallet({
             accountList,
             isInstalled
           })
         )
-        reduxDispatch(
+        dispatch(
           setActiveAccount({
             activeAccount: accountInfor.publicKey,
             balance: ethers.utils.formatUnits(
@@ -134,9 +137,11 @@ function Connect() {
   }, [])
 
   const handleConnect = async () => {
+    if (window.mina) dispatch(setWalletInstalled(true))
+    if (!window.mina) dispatch(setWalletInstalled(false))
     setLoading(true)
-    reduxDispatch(setTransactions([]))
-    reduxDispatch(
+    dispatch(setTransactions([]))
+    dispatch(
       setActiveAccount({
         activeAccount: '',
         balance: '',
@@ -170,14 +175,14 @@ function Connect() {
               urlProxy
             )
           // const txList = await await WALLET.Auro.methods.getTxHistory(urlProxy, result.toString());
-          reduxDispatch(setTransactions([]))
-          reduxDispatch(
+          dispatch(setTransactions([]))
+          dispatch(
             connectWallet({
               accountList,
               isInstalled
             })
           )
-          reduxDispatch(
+          dispatch(
             setActiveAccount({
               activeAccount: accountInfor.publicKey,
               balance: ethers.utils.formatUnits(
@@ -199,14 +204,14 @@ function Connect() {
         const accountInfor =
           await WALLET.MetamaskFlask.methods.getAccountInfors()
         const txList = await await WALLET.MetamaskFlask.methods.getTxHistory()
-        reduxDispatch(setTransactions(txList))
-        reduxDispatch(
+        dispatch(setTransactions(txList))
+        dispatch(
           connectWallet({
             accountList,
             isInstalledSnap
           })
         )
-        reduxDispatch(
+        dispatch(
           setActiveAccount({
             activeAccount: accountInfor.publicKey,
             balance: ethers.utils.formatUnits(
@@ -230,8 +235,8 @@ function Connect() {
     const val = e.target.value || 'MetamaskFlask'
     setLoading(false)
     localStorage.setItem('wallet', val)
-    reduxDispatch(setTransactions([]))
-    reduxDispatch(
+    dispatch(setTransactions([]))
+    dispatch(
       setActiveAccount({
         activeAccount: '',
         balance: '',
@@ -244,8 +249,8 @@ function Connect() {
   const handleChageNetWork = async (e) => {
     setLoading(true)
     setValue(e.target.value)
-    reduxDispatch(setTransactions([]))
-    reduxDispatch(
+    dispatch(setTransactions([]))
+    dispatch(
       setActiveAccount({
         activeAccount: '',
         balance: '',
@@ -262,18 +267,18 @@ function Connect() {
       await WALLET.MetamaskFlask.methods
         .SwitchNetwork(e.target.value)
         .then(async () => {
-          reduxDispatch(setNetWork(e.target.value))
+          dispatch(setNetWork(e.target.value))
           const accountList = await WALLET.MetamaskFlask.methods.AccountList()
           const accountInfor =
             await WALLET.MetamaskFlask.methods.getAccountInfors()
           const txList = await WALLET.MetamaskFlask.methods.getTxHistory()
-          await reduxDispatch(setTransactions(txList))
-          reduxDispatch(
+          await dispatch(setTransactions(txList))
+          dispatch(
             connectWallet({
               accountList
             })
           )
-          await reduxDispatch(
+          await dispatch(
             setActiveAccount({
               activeAccount: accountInfor.publicKey,
               balance: ethers.utils.formatUnits(
@@ -346,7 +351,7 @@ function Connect() {
               disabled={localStorage.getItem('wallet') === 'Auro'}
               className='form-select form-select-md mb-3 ms-3 w-150 d-flex justify-content-center'
               aria-label='.form-select-lg example'
-              value={value}
+              value={network}
               onChange={handleChageNetWork}
             >
               <option value='Mainnet'>Mainnet</option>

@@ -208,9 +208,12 @@ export const WALLET = {
       },
       RequestNetwork: async () => {
         return await ethereum.request({
-          method: 'mina_requestNetwork',
+          method: 'wallet_invokeSnap',
           params: {
-            snapId: snapId
+            snapId: snapId,
+            request: {
+              method: 'mina_requestNetwork'
+            }
           }
         })
       },
