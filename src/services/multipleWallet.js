@@ -206,6 +206,7 @@ export const WALLET = {
           }
         })
       },
+
       RequestNetwork: async () => {
         return await ethereum.request({
           method: 'wallet_invokeSnap',

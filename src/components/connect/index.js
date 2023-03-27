@@ -41,7 +41,7 @@ function Connect() {
   }, [value])
 
   const requestNetWork = async () => {
-    const nw = await WALLET.MetamaskFlask.methods.RequestNetwork()
+    const nw = await GetNetworkConfigSnap()
     setValue(nw)
   }
 
