@@ -18,7 +18,7 @@ const initialState = {
   transactions: [],
   detailsAccount: undefined,
   detailTransaction: undefined,
-  network: ''
+  network: 'Mainnet'
 }
 
 export const walletSlice = createSlice({

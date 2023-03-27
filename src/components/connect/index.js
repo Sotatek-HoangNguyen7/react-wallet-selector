@@ -18,7 +18,7 @@ const ethers = require('ethers')
 
 function Connect() {
   const reduxDispatch = useAppDispatch()
-  const { isInstalledWallet, activeAccount, balance, transactions } =
+  const { isInstalledWallet, activeAccount, balance, transactions, network } =
     useAppSelector((state) => state.wallet)
   const [value, setValue] = useState('Mainnet')
   const [loading, setLoading] = useState(false)
