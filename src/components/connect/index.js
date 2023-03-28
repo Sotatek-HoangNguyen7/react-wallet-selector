@@ -41,8 +41,9 @@ function Connect() {
   }, [value])
 
   const requestNetWork = async () => {
-    const nw = await GetNetworkConfigSnap()
-    setValue(nw)
+    const { name } = await WALLET.MetamaskFlask.methods.GetNetworkConfigSnap()
+    console.log('chainChanged', name)
+    setValue(name)
   }
 
   useEffect(() => {
@@ -366,7 +367,7 @@ function Connect() {
           disabled={localStorage.getItem('wallet') === 'Auro'}
           className='form-select form-select-md mb-3 ms-3 w-150 d-flex justify-content-center'
           aria-label='.form-select-lg example'
-          value={network}
+          value={value}
           onChange={handleChageNetWork}
         >
           <option value='Mainnet'>Mainnet</option>

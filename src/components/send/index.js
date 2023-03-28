@@ -9,6 +9,7 @@ const Send = () => {
     sendFee: '',
     sendMemo: ''
   })
+  const [loading, setLoading] = useState(false)
 
   const [sendMessageResult, setSendMessageResult] = useState('')
 
@@ -20,15 +21,24 @@ const Send = () => {
   }
 
   const sendButton = async () => {
+    if (
+      !sendContent.receiveAddress ||
+      !sendContent.sendAmount ||
+      !sendContent.sendFee
+    )
+      return
     const wallet = localStorage.getItem('wallet') || 'MetamaskFlask'
     setSendMessageResult('')
+    setLoading(true)
     if (wallet === 'Auro') {
       const result = await WALLET.Auro.methods
         .SendTransaction(sendContent)
         .catch((err) => err)
       if (result.hash) {
+        setLoading(false)
         setSendMessageResult(result.hash)
       } else {
+        setLoading(false)
         setSendMessageResult(result.message)
       }
     } else {
@@ -36,11 +46,7 @@ const Send = () => {
         let newSendContent = {
           to: sendContent.receiveAddress,
           amount: sendContent.sendAmount,
-          nonce: 0,
-          validUntil: 0
-        }
-        if (sendContent.sendFee) {
-          newSendContent = { ...newSendContent, fee: sendContent.sendFee }
+          fee: sendContent.sendFee === '' ? 0.001 : sendContent.sendFee
         }
         if (sendContent.sendMemo) {
           newSendContent = { ...newSendContent, memo: sendContent.sendMemo }
@@ -49,12 +55,15 @@ const Send = () => {
           newSendContent
         )
         if (result) {
+          setLoading(false)
           setSendMessageResult(JSON.stringify(result))
         } else {
+          setLoading(false)
           setSendMessageResult('reject')
         }
       } catch (error) {
-        console.log(error)
+        setLoading(false)
+        setSendMessageResult('error')
       }
     }
   }
@@ -72,6 +81,7 @@ const Send = () => {
               placeholder='Set send amount'
               id='sendAmount'
               onChange={handleChangeSendContent}
+              required
             />
             <hr />
             <input
@@ -80,14 +90,16 @@ const Send = () => {
               placeholder='Set receive address'
               id='receiveAddress'
               onChange={handleChangeSendContent}
+              required
             />
             <hr />
             <input
               className='form-control'
               type='text'
-              placeholder='Set Fee (Option)'
+              placeholder='Set Fee'
               id='sendFee'
               onChange={handleChangeSendContent}
+              required={localStorage.getItem('wallet') !== 'Auro'}
             />
             <hr />
             <input
@@ -103,7 +115,16 @@ const Send = () => {
               className='btn btn-primary btn-md d-flex justify-content-center'
               id='sendButton'
             >
-              Send
+              {loading ? (
+                <div style={{ position: 'relative' }}>
+                  <div className='loader'>
+                    <div className='inner one' />
+                    <div className='inner two' />
+                    <div className='inner three' />
+                  </div>
+                </div>
+              ) : null}
+              <span className={`${loading ? 'ms-2' : ''} m-auto`}>Send</span>
             </button>
           </div>
           <hr />
