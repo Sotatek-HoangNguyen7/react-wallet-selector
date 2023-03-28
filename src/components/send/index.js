@@ -6,7 +6,7 @@ const Send = () => {
   const [sendContent, setSendContent] = useState({
     sendAmountInput: '',
     receiveAddressInput: '',
-    sendFee: '',
+    sendFee: '0.0101',
     sendMemo: ''
   })
   const [loading, setLoading] = useState(false)
@@ -21,12 +21,7 @@ const Send = () => {
   }
 
   const sendButton = async () => {
-    if (
-      !sendContent.receiveAddress ||
-      !sendContent.sendAmount ||
-      !sendContent.sendFee
-    )
-      return
+    if (!sendContent.receiveAddress || !sendContent.sendAmount) return
     const wallet = localStorage.getItem('wallet') || 'MetamaskFlask'
     setSendMessageResult('')
     setLoading(true)
@@ -46,7 +41,7 @@ const Send = () => {
         let newSendContent = {
           to: sendContent.receiveAddress,
           amount: sendContent.sendAmount,
-          fee: sendContent.sendFee === '' ? 0.001 : sendContent.sendFee
+          fee: sendContent.sendFee
         }
         if (sendContent.sendMemo) {
           newSendContent = { ...newSendContent, memo: sendContent.sendMemo }
@@ -93,14 +88,17 @@ const Send = () => {
               required
             />
             <hr />
-            <input
-              className='form-control'
-              type='text'
-              placeholder='Set Fee'
-              id='sendFee'
+            <select
+              className='form-select form-select-md mb-3 ms-3 w-150 d-flex justify-content-center'
+              aria-label='.form-select-lg example'
               onChange={handleChangeSendContent}
-              required={localStorage.getItem('wallet') !== 'Auro'}
-            />
+              value={fee}
+              id='sendFee'
+            >
+              <option value='0.0011'>Slow</option>
+              <option value='0.0101'>Default</option>
+              <option value='0.201'>Fast</option>
+            </select>
             <hr />
             <input
               className='form-control'
