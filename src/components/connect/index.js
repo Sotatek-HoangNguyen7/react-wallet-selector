@@ -3,6 +3,7 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-undef */
 import React, { useEffect, useState } from 'react'
+import { Avatar, Segmented, Space, Button } from 'antd'
 import moment from 'moment'
 import { WALLET } from '../../services/multipleWallet'
 import { useAppSelector, useAppDispatch } from '../../hooks/redux'
@@ -168,6 +169,7 @@ function Connect() {
   }
 
   const connectToAuro = async () => {
+    setLoading(true)
     const result = await WALLET.Auro.methods.connectToAuro()
     const network = await window.mina.requestNetwork().catch((err) => err)
     setValue(network)
@@ -205,6 +207,7 @@ function Connect() {
   }
 
   const connectToMetaMaskFlask = async () => {
+    setLoading(true)
     await WALLET.MetamaskFlask.methods.connectToSnap()
     const isInstalledSnap = await WALLET.MetamaskFlask.methods.getSnap()
     await WALLET.MetamaskFlask.methods.SwitchNetwork(value)
@@ -232,7 +235,6 @@ function Connect() {
 
   const handleConnect = async () => {
     checkInstallWhenCallAction()
-    setLoading(true)
     dispatch(setTransactions([]))
     dispatch(
       setActiveAccount({
@@ -247,13 +249,10 @@ function Connect() {
       if (!wallet) return
       if (wallet === 'Auro') {
         connectToAuro()
-      }
-      if (wallet === 'MetamaskFlask') {
+      } else {
         connectToMetaMaskFlask()
       }
     } catch (e) {
-      setLoading(false)
-    } finally {
       setLoading(false)
     }
   }
@@ -261,11 +260,11 @@ function Connect() {
   useEffect(() => {
     setTimeout(() => {
       handleConnect()
-    }, 500)
+    }, 200)
   }, [])
 
-  const handleChangeWallet = (e) => {
-    const val = e.target.value || 'MetamaskFlask'
+  const handleChangeWallet = (str) => {
+    const val = str || 'MetamaskFlask'
     setLoading(false)
     localStorage.setItem('wallet', val)
     dispatch(setTransactions([]))
@@ -282,9 +281,9 @@ function Connect() {
     })
   }
 
-  const handleChageNetWork = async (e) => {
+  const handleChageNetWork = async (str) => {
     setLoading(true)
-    setValue(e.target.value)
+    setValue(str)
     dispatch(setTransactions([]))
     dispatch(
       setActiveAccount({
@@ -301,9 +300,9 @@ function Connect() {
 
     if (wallet === 'MetamaskFlask') {
       await WALLET.MetamaskFlask.methods
-        .SwitchNetwork(e.target.value)
+        .SwitchNetwork(str)
         .then(async () => {
-          dispatch(setNetWork(e.target.value))
+          dispatch(setNetWork(str))
           const accountList = await WALLET.MetamaskFlask.methods.AccountList()
           const accountInfor =
             await WALLET.MetamaskFlask.methods.getAccountInfors()
@@ -361,59 +360,60 @@ function Connect() {
 
   return (
     <div>
-      <div className='d-flex'>
-        <select
-          className='form-select form-select-md mb-3 w-300 d-flex justify-content-center'
-          aria-label='.form-select-lg example'
+      <Space direction='vertical'>
+        <Segmented
           defaultValue={localStorage.getItem('wallet') || 'MetamaskFlask'}
           onChange={handleChangeWallet}
-        >
-          <option value='MetamaskFlask'>Metamask Flask</option>
-          <option value='Auro'>Auro</option>
-        </select>
-        <select
+          options={[
+            {
+              label: (
+                <div style={{ padding: 4 }}>
+                  <Avatar
+                    shape='square'
+                    size={80}
+                    src='https://addons.mozilla.org/user-media/addon_icons/2729/2729495-64.png?modified=88e149c3'
+                  />
+                </div>
+              ),
+              value: 'MetamaskFlask'
+            },
+            {
+              label: (
+                <div style={{ padding: 4 }}>
+                  <Avatar
+                    shape='square'
+                    size={100}
+                    src='https://www.aurowallet.com/wp-content/uploads/2022/10/icon-new.svg'
+                  />
+                </div>
+              ),
+              value: 'Auro'
+            }
+          ]}
+        />
+        <Segmented
           disabled={localStorage.getItem('wallet') === 'Auro'}
-          className='form-select form-select-md mb-3 ms-3 w-150 d-flex justify-content-center'
-          aria-label='.form-select-lg example'
           value={value}
           onChange={handleChageNetWork}
-        >
-          <option value='Mainnet'>Mainnet</option>
-          <option value='Devnet'>Devnet</option>
-          <option value='Berkeley'>Berkeley</option>
-        </select>
-      </div>
-      {!isInstalledWallet ? (
-        <button
-          type='button'
-          className='btn btn-warning btn-md'
-          onClick={() => openLinkInstallFlask()}
-        >
-          {localStorage.getItem('wallet') === 'Auro'
-            ? 'Please install Auro Wallet Click here!'
-            : 'Metamask Flask is required to run snap!'}
-        </button>
-      ) : (
-        <button
-          disabled={disableConectButton}
-          type='button'
-          className='btn btn-primary btn-md d-flex justify-content-center'
-          onClick={handleConnect}
-        >
-          {loading ? (
-            <div style={{ position: 'relative' }}>
-              <div className='loader'>
-                <div className='inner one' />
-                <div className='inner two' />
-                <div className='inner three' />
-              </div>
-            </div>
-          ) : null}
-          <span className={`${loading ? 'ms-2' : ''} m-auto`}>
+          options={['Mainnet', 'Devnet', 'Berkeley']}
+        />
+        {!isInstalledWallet ? (
+          <Button onClick={() => openLinkInstallFlask()}>
+            {localStorage.getItem('wallet') === 'Auro'
+              ? 'Please install Auro Wallet Click here!'
+              : 'Metamask Flask is required to run snap!'}
+          </Button>
+        ) : (
+          <Button
+            disabled={disableConectButton || loading}
+            onClick={handleConnect}
+            loading={loading}
+            type='primary'
+          >
             Connect wallet
-          </span>
-        </button>
-      )}
+          </Button>
+        )}
+      </Space>
       <hr />
       <div className='mt-1 mb-2'>
         <b>Accounts:</b> {formatAddress(activeAccount)}
@@ -426,16 +426,21 @@ function Connect() {
         <div>
           <div className='mt-1 mb-2'>
             <b>Transactions:</b> <br />
-            {transactions.map((el) => {
+            {transactions.map((el, index) => {
               return (
                 <div key={el.id}>
                   <div>
                     Amount:{' '}
-                    <span className='text-info'>
-                      {' '}
+                    <span
+                      className={`${
+                        el.from === activeAccount
+                          ? 'text-danger'
+                          : 'text-success'
+                      }`}
+                    >
                       {(el.from === activeAccount ? `- ` : `+ `) +
                         formatBalance(
-                          ethers.utils.formatUnits(item.amount, 'gwei')
+                          ethers.utils.formatUnits(el?.amount, 'gwei')
                         )}
                     </span>
                   </div>
@@ -460,7 +465,7 @@ function Connect() {
                     From:{' '}
                     <span
                       className='text-info cursor-pointer'
-                      onClick={() => handelCoppy(el.from, '#from')}
+                      onClick={() => handelCoppy(el.from, `${el.from}${index}`)}
                     >
                       {formatAddress(el.from)}
                     </span>
@@ -469,7 +474,7 @@ function Connect() {
                     To:{' '}
                     <span
                       className='text-info cursor-pointer'
-                      onClick={() => handelCoppy(el.from, '#to')}
+                      onClick={() => handelCoppy(el.from, `${el.to}${index}`)}
                     >
                       {formatAddress(el.to)}
                     </span>
