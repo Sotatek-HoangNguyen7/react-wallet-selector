@@ -9,8 +9,8 @@ const Send = () => {
   const [sendMessageResult, setSendMessageResult] = useState('')
 
   const layout = {
-    labelCol: { span: 8 },
-    wrapperCol: { span: 16 }
+    labelCol: { span: 6 },
+    wrapperCol: { span: 18 }
   }
 
   const sendButton = async () => {
@@ -126,7 +126,7 @@ const Send = () => {
         >
           <Input />
         </Form.Item>
-        <Form.Item wrapperCol={{ ...layout.wrapperCol, offset: 8 }}>
+        <Form.Item wrapperCol={{ ...layout.wrapperCol, offset: 6 }}>
           <Button
             onClick={sendButton}
             loading={loading}
@@ -137,7 +137,7 @@ const Send = () => {
           </Button>
         </Form.Item>
       </Form>
-      <p className='info-text alert alert-secondary mt-3'>
+      <p className='info-text alert alert-secondary mt-3 text-break'>
         Send Result: <span id='sendResultDisplay'>{sendMessageResult}</span>
       </p>
     </Card>

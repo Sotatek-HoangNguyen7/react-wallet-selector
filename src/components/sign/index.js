@@ -67,7 +67,7 @@ const Sign = () => {
           <Input />
         </Form.Item>
 
-        <Form.Item wrapperCol={{ ...layout.wrapperCol, offset: 8 }}>
+        <Form.Item wrapperCol={{ ...layout.wrapperCol, offset: 6 }}>
           <Button
             onClick={sendButton}
             loading={loading}
@@ -78,7 +78,7 @@ const Sign = () => {
           </Button>
         </Form.Item>
       </Form>
-      <p className='info-text alert alert-secondary mt-3'>
+      <p className='info-text alert alert-secondary mt-3 text-break'>
         Sign result: <span id='signMessageResult'>{sendMessageResult}</span>
       </p>
     </Card>
