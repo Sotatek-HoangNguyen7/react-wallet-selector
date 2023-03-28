@@ -33,8 +33,20 @@ const Send = () => {
       }
     } else {
       try {
+        let newSendContent = {
+          to: sendContent.receiveAddress,
+          amount: sendContent.sendAmount,
+          nonce: 0,
+          validUntil: 0
+        }
+        if (endContent.sendFee) {
+          newSendContent = { ...newSendContent, fee: sendContent.sendFee }
+        }
+        if (endContent.sendMemo) {
+          newSendContent = { ...newSendContent, memo: sendContent.sendMemo }
+        }
         const result = await WALLET.MetamaskFlask.methods.SendTransaction(
-          sendContent
+          newSendContent
         )
         if (result) {
           setSendMessageResult(JSON.stringify(result))

@@ -148,12 +148,7 @@ export const WALLET = {
             request: {
               method: 'mina_sendPayment',
               params: {
-                to: payload.receiveAddress,
-                amount: payload.sendAmount,
-                fee: payload.sendFee,
-                memo: payload.sendMemo,
-                nonce: 0,
-                validUntil: 0
+                ...payload
               }
             }
           }
