@@ -162,6 +162,69 @@ function Connect() {
     }
   }
 
+  const connectToAuro = async () => {
+    const result = await WALLET.Auro.methods.connectToAuro()
+    const network = await window.mina.requestNetwork().catch((err) => err)
+    setValue(network)
+    const isInstalled = window.mina
+    if (result.message) {
+      setLoading(false)
+    } else {
+      setLoading(false)
+      const accountList = await WALLET.Auro.methods.AccountList()
+      let urlProxy = 'https://proxy.minaexplorer.com/'
+      if (network === 'Mainnet') urlProxy = 'https://proxy.minaexplorer.com/'
+      if (network === 'Devnet')
+        urlProxy = 'https://proxy.devnet.minaexplorer.com/'
+      if (network === 'Berkeley')
+        urlProxy = 'https://proxy.berkeley.minaexplorer.com/'
+      const { account: accountInfor } =
+        await WALLET.Auro.methods.getAccountInfors(result.toString(), urlProxy)
+      // const txList = await await WALLET.Auro.methods.getTxHistory(urlProxy, result.toString());
+      dispatch(setTransactions([]))
+      dispatch(
+        connectWallet({
+          accountList,
+          isInstalled
+        })
+      )
+      dispatch(
+        setActiveAccount({
+          activeAccount: accountInfor.publicKey,
+          balance: ethers.utils.formatUnits(accountInfor.balance.total, 'gwei'),
+          accountName: accountInfor.name,
+          inferredNonce: accountInfor.inferredNonce
+        })
+      )
+    }
+  }
+
+  const connectToMetaMaskFlask = async () => {
+    await WALLET.MetamaskFlask.methods.connectToSnap()
+    const isInstalledSnap = await WALLET.MetamaskFlask.methods.getSnap()
+    await WALLET.MetamaskFlask.methods.SwitchNetwork(value)
+    setNetWork(value)
+    const accountList = await WALLET.MetamaskFlask.methods.AccountList()
+    const accountInfor = await WALLET.MetamaskFlask.methods.getAccountInfors()
+    const txList = await await WALLET.MetamaskFlask.methods.getTxHistory()
+    dispatch(setTransactions(txList))
+    dispatch(
+      connectWallet({
+        accountList,
+        isInstalledSnap
+      })
+    )
+    dispatch(
+      setActiveAccount({
+        activeAccount: accountInfor.publicKey,
+        balance: ethers.utils.formatUnits(accountInfor.balance.total, 'gwei'),
+        accountName: accountInfor.name,
+        inferredNonce: accountInfor.inferredNonce
+      })
+    )
+    setLoading(false)
+  }
+
   const handleConnect = async () => {
     checkInstallWhenCallAction()
     setLoading(true)
@@ -178,76 +241,10 @@ function Connect() {
     try {
       if (!wallet) return
       if (wallet === 'Auro') {
-        const result = await WALLET.Auro.methods.connectToAuro()
-        const network = await window.mina.requestNetwork().catch((err) => err)
-        setValue(network)
-        const isInstalled = window.mina
-        if (result.message) {
-          setLoading(false)
-        } else {
-          setLoading(false)
-          const accountList = await WALLET.Auro.methods.AccountList()
-          let urlProxy = 'https://proxy.minaexplorer.com/'
-          if (network === 'Mainnet')
-            urlProxy = 'https://proxy.minaexplorer.com/'
-          if (network === 'Devnet')
-            urlProxy = 'https://proxy.devnet.minaexplorer.com/'
-          if (network === 'Berkeley')
-            urlProxy = 'https://proxy.berkeley.minaexplorer.com/'
-          const { account: accountInfor } =
-            await WALLET.Auro.methods.getAccountInfors(
-              result.toString(),
-              urlProxy
-            )
-          // const txList = await await WALLET.Auro.methods.getTxHistory(urlProxy, result.toString());
-          dispatch(setTransactions([]))
-          dispatch(
-            connectWallet({
-              accountList,
-              isInstalled
-            })
-          )
-          dispatch(
-            setActiveAccount({
-              activeAccount: accountInfor.publicKey,
-              balance: ethers.utils.formatUnits(
-                accountInfor.balance.total,
-                'gwei'
-              ),
-              accountName: accountInfor.name,
-              inferredNonce: accountInfor.inferredNonce
-            })
-          )
-        }
+        connectToAuro()
       }
       if (wallet === 'MetamaskFlask') {
-        await WALLET.MetamaskFlask.methods.connectToSnap()
-        const isInstalledSnap = await WALLET.MetamaskFlask.methods.getSnap()
-        await WALLET.MetamaskFlask.methods.SwitchNetwork(value)
-        setNetWork(value)
-        const accountList = await WALLET.MetamaskFlask.methods.AccountList()
-        const accountInfor =
-          await WALLET.MetamaskFlask.methods.getAccountInfors()
-        const txList = await await WALLET.MetamaskFlask.methods.getTxHistory()
-        dispatch(setTransactions(txList))
-        dispatch(
-          connectWallet({
-            accountList,
-            isInstalledSnap
-          })
-        )
-        dispatch(
-          setActiveAccount({
-            activeAccount: accountInfor.publicKey,
-            balance: ethers.utils.formatUnits(
-              accountInfor.balance.total,
-              'gwei'
-            ),
-            accountName: accountInfor.name,
-            inferredNonce: accountInfor.inferredNonce
-          })
-        )
-        setLoading(false)
+        connectToMetaMaskFlask()
       }
     } catch (e) {
       setLoading(false)
@@ -255,6 +252,12 @@ function Connect() {
       setLoading(false)
     }
   }
+
+  useEffect(() => {
+    setTimeout(() => {
+      handleConnect()
+    }, 500)
+  }, [])
 
   const handleChangeWallet = (e) => {
     const val = e.target.value || 'MetamaskFlask'
