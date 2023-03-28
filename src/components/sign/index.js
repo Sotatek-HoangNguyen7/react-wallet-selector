@@ -1,91 +1,87 @@
 /* eslint-disable no-undef */
 import React, { useState } from 'react'
+import { Form, Button, Card, Input } from 'antd'
 import { WALLET } from '../../services/multipleWallet'
 
 const Sign = () => {
-  const [signMessageContent, setSignMessageContent] = useState('')
-  const [signMessageResult, setSignMessageResult] = useState('')
+  const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
+  const [sendMessageResult, setSendMessageResult] = useState('')
 
-  const handleChangeSignMessageContent = (e) => {
-    setSignMessageContent(e.target.value)
+  const layout = {
+    labelCol: { span: 6 },
+    wrapperCol: { span: 18 }
   }
 
-  const signMessageButton = async () => {
-    if (!signMessageContent) return
+  const sendButton = async () => {
     const wallet = localStorage.getItem('wallet') || 'MetamaskFlask'
-    setSignMessageResult('')
-    setLoading(true)
-    if (wallet === 'Auro') {
-      const signResult = await WALLET.Auro.methods
-        .Signature(signMessageContent)
-        .catch((err) => err)
-      if (signResult.signature) {
-        setLoading(false)
-        setSignMessageResult(JSON.stringify(signResult.signature))
-      } else {
-        setLoading(false)
-        setSignMessageResult(signResult.message)
-      }
-    } else {
-      try {
-        const signResult = await WALLET.MetamaskFlask.methods.Signature(
-          signMessageContent
-        )
-        if (signResult) {
+    setSendMessageResult('')
+    try {
+      const values = await form.validateFields()
+      setLoading(true)
+      if (wallet === 'Auro') {
+        const result = await WALLET.Auro.methods
+          .Signature(values?.signMessageContent)
+          .catch((err) => err)
+        if (result.signature) {
           setLoading(false)
-          setSignMessageResult(JSON.stringify(signResult))
+          setSendMessageResult(JSON.stringify(result.signature))
         } else {
           setLoading(false)
-          setSignMessageResult('reject')
+          setSendMessageResult(result.message)
         }
-      } catch (error) {
-        setLoading(false)
-        setSignMessageResult('error')
+      } else {
+        try {
+          const result = await WALLET.MetamaskFlask.methods.Signature(
+            values?.signMessageContent
+          )
+          console.log(result)
+          if (result) {
+            setLoading(false)
+            setSendMessageResult(JSON.stringify(result))
+          } else {
+            setLoading(false)
+            setSendMessageResult('reject')
+          }
+        } catch (error) {
+          setLoading(false)
+          setSendMessageResult('error')
+        }
       }
-    }
+    } catch (errorInfo) {}
   }
 
   return (
-    <div>
-      <div className='card full-width'>
-        <div className='card-body'>
-          <h4 className='card-title'>Sign</h4>
-          <hr />
-          <div id='encrypt-message-form'>
-            <input
-              className='form-control'
-              type='text'
-              placeholder='Set sign content'
-              id='signMessageContent'
-              onChange={handleChangeSignMessageContent}
-              required
-            />
-            <hr />
-            <button
-              onClick={signMessageButton}
-              className='btn btn-primary btn-md d-flex justify-content-center'
-              id='signMessageButton'
-            >
-              {loading ? (
-                <div style={{ position: 'relative' }}>
-                  <div className='loader'>
-                    <div className='inner one' />
-                    <div className='inner two' />
-                    <div className='inner three' />
-                  </div>
-                </div>
-              ) : null}
-              <span className={`${loading ? 'ms-2' : ''} m-auto`}>Sign</span>
-            </button>
-          </div>
-          <hr />
-          <p className='info-text alert alert-secondary'>
-            Sign result: <span id='signMessageResult'>{signMessageResult}</span>
-          </p>
-        </div>
-      </div>
-    </div>
+    <Card title='Send' type='inner'>
+      <Form form={form} autoComplete='off' {...layout}>
+        <Form.Item
+          label='Sign content'
+          name='signMessageContent'
+          rules={[
+            {
+              required: true,
+              message: 'Please input Sign content!'
+            }
+          ]}
+        >
+          <Input />
+        </Form.Item>
+
+        <Form.Item wrapperCol={{ ...layout.wrapperCol, offset: 8 }}>
+          <Button
+            onClick={sendButton}
+            loading={loading}
+            type='primary'
+            htmlType='submit'
+          >
+            Send
+          </Button>
+        </Form.Item>
+      </Form>
+      <p className='info-text alert alert-secondary mt-3'>
+        Sign result: <span id='signMessageResult'>{sendMessageResult}</span>
+      </p>
+    </Card>
   )
 }
 

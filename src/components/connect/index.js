@@ -3,7 +3,7 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-undef */
 import React, { useEffect, useState } from 'react'
-import { Avatar, Segmented, Space, Button } from 'antd'
+import { Avatar, Segmented, Space, Button, Card, Typography } from 'antd'
 import moment from 'moment'
 import { WALLET } from '../../services/multipleWallet'
 import { useAppSelector, useAppDispatch } from '../../hooks/redux'
@@ -169,7 +169,6 @@ function Connect() {
   }
 
   const connectToAuro = async () => {
-    setLoading(true)
     const result = await WALLET.Auro.methods.connectToAuro()
     const network = await window.mina.requestNetwork().catch((err) => err)
     setValue(network)
@@ -207,7 +206,6 @@ function Connect() {
   }
 
   const connectToMetaMaskFlask = async () => {
-    setLoading(true)
     await WALLET.MetamaskFlask.methods.connectToSnap()
     const isInstalledSnap = await WALLET.MetamaskFlask.methods.getSnap()
     await WALLET.MetamaskFlask.methods.SwitchNetwork(value)
@@ -234,6 +232,7 @@ function Connect() {
   }
 
   const handleConnect = async () => {
+    setLoading(true)
     checkInstallWhenCallAction()
     dispatch(setTransactions([]))
     dispatch(
@@ -245,15 +244,11 @@ function Connect() {
       })
     )
     const wallet = localStorage.getItem('wallet') || 'MetamaskFlask'
-    try {
-      if (!wallet) return
-      if (wallet === 'Auro') {
-        connectToAuro()
-      } else {
-        connectToMetaMaskFlask()
-      }
-    } catch (e) {
-      setLoading(false)
+    if (!wallet) return
+    if (wallet === 'Auro') {
+      connectToAuro()
+    } else {
+      connectToMetaMaskFlask()
     }
   }
 
@@ -415,92 +410,100 @@ function Connect() {
         )}
       </Space>
       <hr />
-      <div className='mt-1 mb-2'>
-        <b>Accounts:</b> {formatAddress(activeAccount)}
-      </div>
-      <div className='mt-1 mb-2'>
-        <b>Balance:</b>{' '}
-        <span className='text-danger'>{formatBalance(balance)}</span> Mina
-      </div>
+      <Typography.Title level={3}>
+        Accounts: {formatAddress(activeAccount)}
+      </Typography.Title>
+      <Typography.Title level={3}>
+        Balance: <span className='text-danger'>{formatBalance(balance)}</span>{' '}
+        Mina
+      </Typography.Title>
       {localStorage.getItem('wallet') === 'Auro' ? null : (
         <div>
           <div className='mt-1 mb-2'>
-            <b>Transactions:</b> <br />
+            <Typography.Title level={3}>Transactions:</Typography.Title>
             {transactions.map((el, index) => {
               return (
-                <div key={el.id}>
-                  <div>
-                    Amount:{' '}
-                    <span
-                      className={`${
-                        el.from === activeAccount
-                          ? 'text-danger'
-                          : 'text-success'
-                      }`}
-                    >
-                      {(el.from === activeAccount ? `- ` : `+ `) +
-                        formatBalance(
-                          ethers.utils.formatUnits(el?.amount, 'gwei')
+                <Space
+                  key={index}
+                  direction='vertical'
+                  size='middle'
+                  style={{ display: 'flex' }}
+                >
+                  <Card size='small'>
+                    <div>
+                      Amount:{' '}
+                      <span
+                        className={`${
+                          el.from === activeAccount
+                            ? 'text-danger'
+                            : 'text-success'
+                        }`}
+                      >
+                        {(el.from === activeAccount ? `- ` : `+ `) +
+                          formatBalance(
+                            ethers.utils.formatUnits(el?.amount, 'gwei')
+                          )}
+                      </span>
+                    </div>
+                    <div>
+                      DateTime:{' '}
+                      <span className='text-info'>
+                        {moment(el.dateTime).format(dateFomat)}
+                      </span>
+                    </div>
+                    <div>
+                      Fee:{' '}
+                      <span className='text-info'>
+                        {formatBalance(
+                          ethers.utils.formatUnits(el?.fee || 0, 'gwei')
                         )}
-                    </span>
-                  </div>
-                  <div>
-                    DateTime:{' '}
-                    <span className='text-info'>
-                      {moment(el.dateTime).format(dateFomat)}
-                    </span>
-                  </div>
-                  <div>
-                    Fee:{' '}
-                    <span className='text-info'>
-                      {formatBalance(
-                        ethers.utils.formatUnits(el?.fee || 0, 'gwei')
-                      )}
-                    </span>
-                  </div>
-                  <div>
-                    FeeToken: <span className='text-info'>{el.feeToken}</span>
-                  </div>
-                  <div>
-                    From:{' '}
-                    <span
-                      className='text-info cursor-pointer'
-                      onClick={() => handelCoppy(el.from, `${el.from}${index}`)}
-                    >
-                      {formatAddress(el.from)}
-                    </span>
-                  </div>
-                  <div>
-                    To:{' '}
-                    <span
-                      className='text-info cursor-pointer'
-                      onClick={() => handelCoppy(el.from, `${el.to}${index}`)}
-                    >
-                      {formatAddress(el.to)}
-                    </span>
-                  </div>
-                  <div>
-                    Hash:{' '}
-                    <a
-                      href={renderHashLink() + el?.hash}
-                      target='_blank'
-                      className='text-info'
-                      rel='noreferrer'
-                    >
-                      {el.hash}
-                    </a>
-                  </div>
-                  <div>
-                    Memo: <span className='text-info'>{el.memo}</span>
-                  </div>
-                  <div>
-                    Nonce: <span className='text-info'>{el.nonce}</span>
-                  </div>
-                  <div>
-                    Status: <span className='text-info'>{el.status}</span>
-                  </div>
-                  <hr />
-                </div>
+                      </span>
+                    </div>
+                    <div>
+                      FeeToken: <span className='text-info'>{el.feeToken}</span>
+                    </div>
+                    <div>
+                      From:{' '}
+                      <span
+                        className='text-info cursor-pointer'
+                        onClick={() =>
+                          handelCoppy(el.from, `${el.from}${index}`)
+                        }
+                      >
+                        {formatAddress(el.from)}
+                      </span>
+                    </div>
+                    <div>
+                      To:{' '}
+                      <span
+                        className='text-info cursor-pointer'
+                        onClick={() => handelCoppy(el.from, `${el.to}${index}`)}
+                      >
+                        {formatAddress(el.to)}
+                      </span>
+                    </div>
+                    <div>
+                      Hash:{' '}
+                      <a
+                        href={renderHashLink() + el?.hash}
+                        target='_blank'
+                        className='text-info'
+                        rel='noreferrer'
+                      >
+                        {el.hash}
+                      </a>
+                    </div>
+                    <div>
+                      Memo: <span className='text-info'>{el.memo}</span>
+                    </div>
+                    <div>
+                      Nonce: <span className='text-info'>{el.nonce}</span>
+                    </div>
+                    <div>
+                      Status: <span className='text-info'>{el.status}</span>
+                    </div>
+                  </Card>
+                </Space>
               )
             })}
           </div>

@@ -1,137 +1,146 @@
 /* eslint-disable no-undef */
 import React, { useState } from 'react'
+import { Form, Button, Card, Input, Select } from 'antd'
 import { WALLET } from '../../services/multipleWallet'
 
 const Send = () => {
-  const [sendContent, setSendContent] = useState({
-    sendAmountInput: '',
-    receiveAddressInput: '',
-    sendFee: '0.0101',
-    sendMemo: ''
-  })
+  const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
-
   const [sendMessageResult, setSendMessageResult] = useState('')
 
-  const handleChangeSendContent = (e) => {
-    setSendContent({
-      ...sendContent,
-      [e.target.id]: e.target.value
-    })
+  const layout = {
+    labelCol: { span: 8 },
+    wrapperCol: { span: 16 }
   }
 
   const sendButton = async () => {
-    if (!sendContent.receiveAddress || !sendContent.sendAmount) return
     const wallet = localStorage.getItem('wallet') || 'MetamaskFlask'
     setSendMessageResult('')
-    setLoading(true)
-    if (wallet === 'Auro') {
-      const result = await WALLET.Auro.methods
-        .SendTransaction(sendContent)
-        .catch((err) => err)
-      if (result.hash) {
-        setLoading(false)
-        setSendMessageResult(result.hash)
-      } else {
-        setLoading(false)
-        setSendMessageResult(result.message)
-      }
-    } else {
-      try {
-        let newSendContent = {
-          to: sendContent.receiveAddress,
-          amount: sendContent.sendAmount,
-          fee: sendContent.sendFee
-        }
-        if (sendContent.sendMemo) {
-          newSendContent = { ...newSendContent, memo: sendContent.sendMemo }
-        }
-        const result = await WALLET.MetamaskFlask.methods.SendTransaction(
-          newSendContent
-        )
-        if (result) {
+    try {
+      const values = await form.validateFields()
+      setLoading(true)
+      if (wallet === 'Auro') {
+        const result = await WALLET.Auro.methods
+          .SendTransaction(values)
+          .catch((err) => err)
+        if (result.hash) {
           setLoading(false)
-          setSendMessageResult(JSON.stringify(result))
+          setSendMessageResult(result.hash)
         } else {
           setLoading(false)
-          setSendMessageResult('reject')
+          setSendMessageResult(result.message)
         }
-      } catch (error) {
-        setLoading(false)
-        setSendMessageResult('error')
+      } else {
+        try {
+          let newValues = {
+            to: values.receiveAddress,
+            amount: values.sendAmount,
+            fee: values.sendFee
+          }
+          if (values.sendMemo) {
+            newValues = { ...newSendContent, memo: values.sendMemo }
+          }
+          const result = await WALLET.MetamaskFlask.methods.SendTransaction(
+            newValues
+          )
+          if (result) {
+            setLoading(false)
+            setSendMessageResult(JSON.stringify(result))
+          } else {
+            setLoading(false)
+            setSendMessageResult('reject')
+          }
+        } catch (error) {
+          setLoading(false)
+          setSendMessageResult('error')
+        }
       }
-    }
+    } catch (errorInfo) {}
   }
 
   return (
-    <div>
-      <div className='card full-width'>
-        <div className='card-body'>
-          <h4 className='card-title'>Send</h4>
-          <hr />
-          <div id='encrypt-message-form'>
-            <input
-              className='form-control'
-              type='text'
-              placeholder='Set send amount'
-              id='sendAmount'
-              onChange={handleChangeSendContent}
-              required
-            />
-            <hr />
-            <input
-              className='form-control'
-              type='text'
-              placeholder='Set receive address'
-              id='receiveAddress'
-              onChange={handleChangeSendContent}
-              required
-            />
-            <hr />
-            <select
-              className='form-select form-select-md mb-3 w-150 d-flex justify-content-center'
-              aria-label='.form-select-lg example'
-              onChange={handleChangeSendContent}
-              value={sendContent.sendFee}
-              id='sendFee'
-            >
-              <option value='0.0011'>Slow</option>
-              <option value='0.0101'>Default</option>
-              <option value='0.201'>Fast</option>
-            </select>
-            <hr />
-            <input
-              className='form-control'
-              type='text'
-              placeholder='Set memo (Option)'
-              id='sendMemo'
-              onChange={handleChangeSendContent}
-            />
-            <hr />
-            <button
-              onClick={sendButton}
-              className='btn btn-primary btn-md d-flex justify-content-center'
-              id='sendButton'
-            >
-              {loading ? (
-                <div style={{ position: 'relative' }}>
-                  <div className='loader'>
-                    <div className='inner one' />
-                    <div className='inner two' />
-                    <div className='inner three' />
-                  </div>
-                </div>
-              ) : null}
-              <span className={`${loading ? 'ms-2' : ''} m-auto`}>Send</span>
-            </button>
-          </div>
-          <hr />
-          <p className='info-text alert alert-secondary'>
-            Send Result: <span id='sendResultDisplay'>{sendMessageResult}</span>
-          </p>
-        </div>
-      </div>
-    </div>
+    <Card title='Send' type='inner'>
+      <Form form={form} autoComplete='off' {...layout}>
+        <Form.Item
+          label='Send amount'
+          name='sendAmount'
+          rules={[
+            {
+              required: true,
+              message: 'Please input Send amount!'
+            }
+          ]}
+        >
+          <Input />
+        </Form.Item>
+        <Form.Item
+          label='Receive address'
+          name='receiveAddress'
+          rules={[
+            {
+              required: true,
+              message: 'Please input Receive address!'
+            }
+          ]}
+        >
+          <Input />
+        </Form.Item>
+        <Form.Item
+          label='Fee'
+          name='sendFee'
+          rules={[
+            {
+              required: true,
+              message: 'Please select Fee!'
+            }
+          ]}
+          initialValue='0.0101'
+        >
+          <Select>
+            <Select.Option value='0.0011'>Slow</Select.Option>
+            <Select.Option value='0.0101'>Default</Select.Option>
+            <Select.Option value='0.201'>Fast</Select.Option>
+          </Select>
+        </Form.Item>
+        <Form.Item
+          label='Memo'
+          name='sendMemo'
+          rules={[
+            {
+              required: false,
+              message: 'Please input Memo!'
+            }
+          ]}
+        >
+          <Input />
+        </Form.Item>
+        <Form.Item
+          label='Nonce'
+          name='sendNonce'
+          rules={[
+            {
+              required: false,
+              message: 'Please input Nonce!'
+            }
+          ]}
+        >
+          <Input />
+        </Form.Item>
+        <Form.Item wrapperCol={{ ...layout.wrapperCol, offset: 8 }}>
+          <Button
+            onClick={sendButton}
+            loading={loading}
+            type='primary'
+            htmlType='submit'
+          >
+            Send
+          </Button>
+        </Form.Item>
+      </Form>
+      <p className='info-text alert alert-secondary mt-3'>
+        Send Result: <span id='sendResultDisplay'>{sendMessageResult}</span>
+      </p>
+    </Card>
   )
 }
 
