@@ -39,10 +39,10 @@ const Send = () => {
           nonce: 0,
           validUntil: 0
         }
-        if (endContent.sendFee) {
+        if (sendContent.sendFee) {
           newSendContent = { ...newSendContent, fee: sendContent.sendFee }
         }
-        if (endContent.sendMemo) {
+        if (sendContent.sendMemo) {
           newSendContent = { ...newSendContent, memo: sendContent.sendMemo }
         }
         const result = await WALLET.MetamaskFlask.methods.SendTransaction(
