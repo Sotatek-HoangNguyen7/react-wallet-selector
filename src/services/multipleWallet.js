@@ -151,7 +151,7 @@ export const WALLET = {
                 to: payload.receiveAddress,
                 amount: payload.sendAmount,
                 fee: payload.sendFee,
-                memo: payload.sendMemoInput,
+                memo: payload.sendMemo,
                 nonce: 0,
                 validUntil: 0
               }
