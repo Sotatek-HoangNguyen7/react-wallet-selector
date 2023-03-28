@@ -4,6 +4,7 @@ import Send from './components/send'
 import Sign from './components/sign'
 import AppProvider from './provider'
 import '../node_modules/bootstrap/dist/css/bootstrap.min.css'
+import './styles.module.css'
 
 export const SelectWalet = ({ children }) => {
   return (

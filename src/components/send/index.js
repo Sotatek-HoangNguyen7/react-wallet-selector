@@ -89,7 +89,7 @@ const Send = () => {
             />
             <hr />
             <select
-              className='form-select form-select-md mb-3 ms-3 w-150 d-flex justify-content-center'
+              className='form-select form-select-md mb-3 w-150 d-flex justify-content-center'
               aria-label='.form-select-lg example'
               onChange={handleChangeSendContent}
               value={sendContent.sendFee}
