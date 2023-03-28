@@ -3,11 +3,19 @@
 export const sendPaymentQuery = (isRawSignature) => `
 mutation sendPayment(
 	$fee: UInt64!, $amount: UInt64!, $to: PublicKey!, $from: PublicKey!, $nonce: UInt32, $memo: String, $validUntil: UInt32,
-	${isRawSignature ? '$rawSignature: String!' : '$scalar: String!, $field: String!'}
+	${
+    isRawSignature
+      ? '$rawSignature: String!'
+      : '$scalar: String!, $field: String!'
+  }
 ) {
 	sendPayment(
 		input: { fee: $fee, amount: $amount, to: $to, from: $from, memo: $memo, nonce: $nonce, validUntil: $validUntil },
-		signature: { ${isRawSignature ? 'rawSignature: $rawSignature' : 'field: $field, scalar: $scalar'} }
+		signature: { ${
+      isRawSignature
+        ? 'rawSignature: $rawSignature'
+        : 'field: $field, scalar: $scalar'
+    } }
 	) {
 		payment {
 			amount
@@ -24,7 +32,7 @@ mutation sendPayment(
 		}
 	}
 }
-`;
+`
 
 export const getAccountInfoQuery = `
 query accountInfo($publicKey: PublicKey!) {
@@ -38,13 +46,13 @@ query accountInfo($publicKey: PublicKey!) {
     publicKey
   }
 }
-`;
+`
 
 export const getTxStatusQuery = `
 query txStatus($paymentId:ID!) {
   	transactionStatus(payment: $paymentId)
 }
-`;
+`
 
 export const getTxHistoryQuery = `
 query history($limit: Int!, $sortBy: TransactionSortByInput!, $canonical: Boolean!, $address: String!) {
@@ -64,7 +72,7 @@ query history($limit: Int!, $sortBy: TransactionSortByInput!, $canonical: Boolea
 		id
 	}
 }
-`;
+`
 
 export const TxPendingQuery = `
 query pendingTx($address: PublicKey!) {
@@ -83,7 +91,7 @@ query pendingTx($address: PublicKey!) {
 		id
     }
   }
-`;
+`
 
 export const getTxDetailQuery = `
 query transaction($hash: String!) {
@@ -97,12 +105,14 @@ query transaction($hash: String!) {
 	  hash
 	}
 }
-`;
+`
 
 export const sendStakeDelegationGql = (isRawSignature) => `
 mutation stakeTx($fee:UInt64!,
   $to: PublicKey!, $from: PublicKey!, $nonce:UInt32, $memo: String,
-  $validUntil: UInt32,${isRawSignature ? '$rawSignature: String' : '$scalar: String, $field: String'}) {
+  $validUntil: UInt32,${
+    isRawSignature ? '$rawSignature: String' : '$scalar: String, $field: String'
+  }) {
     sendDelegation(
       input: {
         fee: $fee,
@@ -112,7 +122,11 @@ mutation stakeTx($fee:UInt64!,
         nonce: $nonce,
         validUntil: $validUntil
       },
-      signature: { ${isRawSignature ? 'rawSignature: $rawSignature' : 'field: $field, scalar: $scalar'}}) {
+      signature: { ${
+        isRawSignature
+          ? 'rawSignature: $rawSignature'
+          : 'field: $field, scalar: $scalar'
+      }}) {
       delegation {
         amount
         fee
@@ -128,4 +142,4 @@ mutation stakeTx($fee:UInt64!,
       }
     }
   }
-`;
+`

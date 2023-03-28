@@ -6,7 +6,12 @@ import React, { useEffect, useState } from 'react'
 import moment from 'moment'
 import { WALLET } from '../../services/multipleWallet'
 import { useAppSelector, useAppDispatch } from '../../hooks/redux'
-import { formatBalance, formatAddress } from '../../utils/utils'
+import {
+  formatBalance,
+  formatAddress,
+  handelCoppy,
+  dateFomat
+} from '../../utils/utils'
 import {
   connectWallet,
   setActiveAccount,
@@ -425,27 +430,49 @@ function Connect() {
               return (
                 <div key={el.id}>
                   <div>
-                    Amount: <span className='text-info'>{el.amount}</span>
+                    Amount:{' '}
+                    <span className='text-info'>
+                      {' '}
+                      {(el.from === activeAccount ? `- ` : `+ `) +
+                        formatBalance(
+                          ethers.utils.formatUnits(item.amount, 'gwei')
+                        )}
+                    </span>
                   </div>
                   <div>
                     DateTime:{' '}
                     <span className='text-info'>
-                      {moment(el.dateTime).format('DD/MM/YYYY HH:mm')}
+                      {moment(el.dateTime).format(dateFomat)}
                     </span>
                   </div>
                   <div>
-                    Fee: <span className='text-info'>{el.fee}</span>
+                    Fee:{' '}
+                    <span className='text-info'>
+                      {formatBalance(
+                        ethers.utils.formatUnits(el?.fee || 0, 'gwei')
+                      )}
+                    </span>
                   </div>
                   <div>
                     FeeToken: <span className='text-info'>{el.feeToken}</span>
                   </div>
                   <div>
                     From:{' '}
-                    <span className='text-info'>{formatAddress(el.from)}</span>
+                    <span
+                      className='text-info cursor-pointer'
+                      onClick={() => handelCoppy(el.from, '#from')}
+                    >
+                      {formatAddress(el.from)}
+                    </span>
                   </div>
                   <div>
                     To:{' '}
-                    <span className='text-info'>{formatAddress(el.to)}</span>
+                    <span
+                      className='text-info cursor-pointer'
+                      onClick={() => handelCoppy(el.from, '#to')}
+                    >
+                      {formatAddress(el.to)}
+                    </span>
                   </div>
                   <div>
                     Hash:{' '}
