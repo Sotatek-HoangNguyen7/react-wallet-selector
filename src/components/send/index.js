@@ -92,7 +92,7 @@ const Send = () => {
               className='form-select form-select-md mb-3 ms-3 w-150 d-flex justify-content-center'
               aria-label='.form-select-lg example'
               onChange={handleChangeSendContent}
-              value={fee}
+              value={sendContent.sendFee}
               id='sendFee'
             >
               <option value='0.0011'>Slow</option>
