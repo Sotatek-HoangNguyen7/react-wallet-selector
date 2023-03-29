@@ -37,20 +37,19 @@ const Sign = () => {
         }
       } else {
         try {
-          const result = await WALLET.MetamaskFlask.methods.Signature(
-            values?.signMessageContent
-          )
-          console.log(result)
+          const data = values?.signMessageContent
+          const result = await WALLET.MetamaskFlask.methods
+            .Signature(data)
+            .catch((err) => {
+              setSendMessageResult(JSON.stringify(err))
+            })
           if (result) {
             setLoading(false)
             setSendMessageResult(JSON.stringify(result))
-          } else {
-            setLoading(false)
-            setSendMessageResult('reject')
           }
         } catch (error) {
           setLoading(false)
-          setSendMessageResult('error')
+          setSendMessageResult(JSON.stringify(error))
         }
       }
     } catch (errorInfo) {}

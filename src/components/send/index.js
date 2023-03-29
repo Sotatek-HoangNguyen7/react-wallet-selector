@@ -9,6 +9,7 @@ const { Panel } = Collapse
 const Send = () => {
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
+  const [open, setOpen] = useState(false)
   const [sendMessageResult, setSendMessageResult] = useState('')
   const [, forceUpdate] = useState({})
 
@@ -46,27 +47,30 @@ const Send = () => {
             fee: values.sendFee
           }
           if (values.sendMemo) {
-            newValues = { ...newSendContent, memo: values.sendMemo }
+            newValues = { ...newValues, memo: values.sendMemo }
           }
           if (values.sendFee2) {
-            newValues = { ...newSendContent, fee: values.sendFee2 }
+            newValues = { ...newValues, fee: values.sendFee2 }
           }
-          const result = await WALLET.MetamaskFlask.methods.SendTransaction(
-            newValues
-          )
+          const result = await WALLET.MetamaskFlask.methods
+            .SendTransaction(newValues)
+            .catch((_err) => {
+              setSendMessageResult(JSON.stringify(_err))
+            })
           if (result) {
             setLoading(false)
             setSendMessageResult(JSON.stringify(result))
-          } else {
-            setLoading(false)
-            setSendMessageResult('reject')
           }
         } catch (error) {
           setLoading(false)
-          setSendMessageResult(error)
+          setSendMessageResult(JSON.stringify(error))
         }
       }
     } catch (errorInfo) {}
+  }
+
+  const handleChangeCollapse = (key) => {
+    setOpen(!open)
   }
 
   return (
@@ -126,59 +130,66 @@ const Send = () => {
           </Select>
         </Form.Item>
         <hr className='m-0' />
-
         <Collapse
           ghost
           expandIcon={({ isActive }) => (
             <CaretUpOutlined rotate={isActive ? 0 : 180} />
           )}
           expandIconPosition='end'
+          onChange={handleChangeCollapse}
         >
-          <Panel header='Advanced' key='1'>
-            <Form.Item
-              label='Transaction Fee'
-              name='sendFee2'
-              rules={[
-                {
-                  required: false,
-                  message: 'Please input Nonce!'
-                }
-              ]}
-            >
-              <Input />
-            </Form.Item>
-            <Form.Item
-              label='Nonce'
-              name='sendNonce'
-              rules={[
-                {
-                  required: false,
-                  message: 'Please input Nonce!'
-                }
-              ]}
-            >
-              <Input />
-            </Form.Item>
-          </Panel>
+          <Panel header='Advanced' key='1' />
         </Collapse>
-        <Form.Item wrapperCol={{ span: 24, offset: 0 }} shouldUpdate>
-          {() => (
-            <Button
-              loading={loading}
-              type='primary'
-              htmlType='submit'
-              block
-              disabled={
-                !form.getFieldValue('receiveAddress') ||
-                !form.getFieldValue('sendAmount') ||
-                !!form.getFieldsError().filter(({ errors }) => errors.length)
-                  .length
+        <div style={{ height: open ? 'auto' : 0, position: 'relative' }}>
+          <Form.Item
+            label='Transaction Fee'
+            name='sendFee2'
+            rules={[
+              {
+                required: false,
+                message: 'Please input Nonce!'
               }
-            >
-              Send
-            </Button>
-          )}
-        </Form.Item>
+            ]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            label='Nonce'
+            name='sendNonce'
+            rules={[
+              {
+                required: false,
+                message: 'Please input Nonce!'
+              }
+            ]}
+          >
+            <Input />
+          </Form.Item>
+        </div>
+        <div className='submit-section'>
+          <Form.Item
+            className='bg-white'
+            wrapperCol={{ span: 24, offset: 0 }}
+            shouldUpdate
+          >
+            {() => (
+              <Button
+                loading={loading}
+                type='primary'
+                htmlType='submit'
+                block
+                disabled={
+                  !form.getFieldValue('receiveAddress') ||
+                  !form.getFieldValue('sendAmount') ||
+                  !!form.getFieldsError().filter(({ errors }) => errors.length)
+                    .length
+                }
+              >
+                Send
+              </Button>
+            )}
+          </Form.Item>
+        </div>
       </Form>
       <p className='info-text alert alert-secondary mt-3 text-break'>
         Send Result: <span id='sendResultDisplay'>{sendMessageResult}</span>
