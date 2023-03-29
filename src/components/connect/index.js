@@ -3,20 +3,15 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-undef */
 import React, { useEffect, useState } from 'react'
-import { Avatar, Segmented, Space, Button, Card, Typography } from 'antd'
-import moment from 'moment'
+import { Avatar, Segmented, Space, Button, Typography } from 'antd'
+import { ReloadOutlined } from '@ant-design/icons'
 import { WALLET } from '../../services/multipleWallet'
 import { useAppSelector, useAppDispatch } from '../../hooks/redux'
-import {
-  formatBalance,
-  formatAddress,
-  handelCoppy,
-  dateFomat
-} from '../../utils/utils'
+import { formatBalance, formatAddress } from '../../utils/utils'
 import {
   connectWallet,
   setActiveAccount,
-  setTransactions,
+  // setTransactions,
   setNetWork,
   setWalletInstalled
 } from '../../slices/walletSlice'
@@ -27,11 +22,13 @@ const ethers = require('ethers')
 
 function Connect() {
   const dispatch = useAppDispatch()
-  const { isInstalledWallet, activeAccount, balance, transactions, network } =
-    useAppSelector((state) => state.wallet)
+  const { isInstalledWallet, activeAccount, balance, network } = useAppSelector(
+    (state) => state.wallet
+  )
   const [value, setValue] = useState(network)
   const [loading, setLoading] = useState(false)
   const [disableConectButton, setDisableConectButton] = useState(false)
+  const [loadingBalance, setLoadingBalance] = useState(false)
 
   useEffect(() => {
     localStorage.setItem(
@@ -47,9 +44,8 @@ function Connect() {
   }, [value])
 
   const requestNetWork = async () => {
-    const { name } = await WALLET.MetamaskFlask.methods.GetNetworkConfigSnap()
-    console.log('chainChanged', name)
-    setValue(name)
+    const info = await WALLET.MetamaskFlask.methods.GetNetworkConfigSnap()
+    if (info) setValue(info?.name)
   }
 
   useEffect(() => {
@@ -76,7 +72,7 @@ function Connect() {
               urlProxy
             )
           // const txList = await await WALLET.Auro.methods.getTxHistory(urlProxy, result.toString());
-          dispatch(setTransactions([]))
+          // dispatch(setTransactions([]))
           dispatch(
             connectWallet({
               accountList,
@@ -119,7 +115,7 @@ function Connect() {
             urlProxy
           )
         // const txList = await await WALLET.Auro.methods.getTxHistory(urlProxy, result.toString());
-        dispatch(setTransactions([]))
+        // dispatch(setTransactions([]))
         dispatch(
           connectWallet({
             accountList,
@@ -139,7 +135,7 @@ function Connect() {
         )
       })
     } else {
-      window.ethereum.on('accountsChanged', async (accounts) => {
+      window.ethereum?.on('accountsChanged', async (accounts) => {
         console.log(accounts)
       })
     }
@@ -168,15 +164,15 @@ function Connect() {
     }
   }
 
-  const connectToAuro = async () => {
+  const connectToAuro = async (isloadBalance) => {
     const result = await WALLET.Auro.methods.connectToAuro()
-    const network = await window.mina.requestNetwork().catch((err) => err)
+    const network = await window.mina?.requestNetwork().catch((err) => err)
     setValue(network)
     const isInstalled = window.mina
     if (result.message) {
       setLoading(false)
+      if (isloadBalance) setLoadingBalance(false)
     } else {
-      setLoading(false)
       const accountList = await WALLET.Auro.methods.AccountList()
       let urlProxy = 'https://proxy.minaexplorer.com/'
       if (network === 'Mainnet') urlProxy = 'https://proxy.minaexplorer.com/'
@@ -187,7 +183,7 @@ function Connect() {
       const { account: accountInfor } =
         await WALLET.Auro.methods.getAccountInfors(result.toString(), urlProxy)
       // const txList = await await WALLET.Auro.methods.getTxHistory(urlProxy, result.toString());
-      dispatch(setTransactions([]))
+      // dispatch(setTransactions([]))
       dispatch(
         connectWallet({
           accountList,
@@ -202,18 +198,20 @@ function Connect() {
           inferredNonce: accountInfor.inferredNonce
         })
       )
+      if (isloadBalance) setLoadingBalance(false)
+      setLoading(false)
     }
   }
 
-  const connectToMetaMaskFlask = async () => {
+  const connectToMetaMaskFlask = async (isloadBalance) => {
     await WALLET.MetamaskFlask.methods.connectToSnap()
     const isInstalledSnap = await WALLET.MetamaskFlask.methods.getSnap()
     await WALLET.MetamaskFlask.methods.SwitchNetwork(value)
     setNetWork(value)
     const accountList = await WALLET.MetamaskFlask.methods.AccountList()
     const accountInfor = await WALLET.MetamaskFlask.methods.getAccountInfors()
-    const txList = await await WALLET.MetamaskFlask.methods.getTxHistory()
-    dispatch(setTransactions(txList))
+    // const txList = await await WALLET.MetamaskFlask.methods.getTxHistory()
+    // dispatch(setTransactions(txList))
     dispatch(
       connectWallet({
         accountList,
@@ -228,13 +226,14 @@ function Connect() {
         inferredNonce: accountInfor.inferredNonce
       })
     )
+    if (isloadBalance) setLoadingBalance(false)
     setLoading(false)
   }
 
   const handleConnect = async () => {
     setLoading(true)
     checkInstallWhenCallAction()
-    dispatch(setTransactions([]))
+    // dispatch(setTransactions([]))
     dispatch(
       setActiveAccount({
         activeAccount: '',
@@ -262,7 +261,7 @@ function Connect() {
     const val = str || 'MetamaskFlask'
     setLoading(false)
     localStorage.setItem('wallet', val)
-    dispatch(setTransactions([]))
+    // dispatch(setTransactions([]))
     dispatch(
       setActiveAccount({
         activeAccount: '',
@@ -279,7 +278,7 @@ function Connect() {
   const handleChageNetWork = async (str) => {
     setLoading(true)
     setValue(str)
-    dispatch(setTransactions([]))
+    // dispatch(setTransactions([]))
     dispatch(
       setActiveAccount({
         activeAccount: '',
@@ -301,8 +300,8 @@ function Connect() {
           const accountList = await WALLET.MetamaskFlask.methods.AccountList()
           const accountInfor =
             await WALLET.MetamaskFlask.methods.getAccountInfors()
-          const txList = await WALLET.MetamaskFlask.methods.getTxHistory()
-          await dispatch(setTransactions(txList))
+          // const txList = await WALLET.MetamaskFlask.methods.getTxHistory()
+          // await dispatch(setTransactions(txList))
           dispatch(
             connectWallet({
               accountList
@@ -330,6 +329,17 @@ function Connect() {
     }
   }
 
+  const handleReloadBalance = () => {
+    const wallet = localStorage.getItem('wallet') || 'MetamaskFlask'
+    if (!wallet) return
+    setLoadingBalance(true)
+    if (wallet === 'Auro') {
+      connectToAuro(true)
+    } else {
+      connectToMetaMaskFlask(true)
+    }
+  }
+
   const openLinkInstallFlask = () => {
     const wallet = localStorage.getItem('wallet')
     const auroLink =
@@ -345,13 +355,13 @@ function Connect() {
 
   // export const OPTIONS_NETWORK = ['Mainnet', 'Devnet', 'Berkeley'];
 
-  const renderHashLink = () => {
-    if (network === 'Mainnet') return 'https://minaexplorer.com/transaction/'
-    if (network === 'Devnet')
-      return 'https://devnet.minaexplorer.com/transaction/'
-    if (network === 'Berkeley')
-      return 'https://berkeley.minaexplorer.com/transaction/'
-  }
+  // const renderHashLink = () => {
+  //   if (network === 'Mainnet') return 'https://minaexplorer.com/transaction/'
+  //   if (network === 'Devnet')
+  //     return 'https://devnet.minaexplorer.com/transaction/'
+  //   if (network === 'Berkeley')
+  //     return 'https://berkeley.minaexplorer.com/transaction/'
+  // }
 
   return (
     <div>
@@ -410,14 +420,22 @@ function Connect() {
         )}
       </Space>
       <hr />
-      <Typography.Title level={3}>
+      <Typography.Title level={4}>
         Accounts: {formatAddress(activeAccount)}
       </Typography.Title>
-      <Typography.Title level={3}>
-        Balance: <span className='text-danger'>{formatBalance(balance)}</span>{' '}
-        Mina
-      </Typography.Title>
-      {localStorage.getItem('wallet') === 'Auro' ? null : (
+      <Space align='center'>
+        <Typography.Title level={4} className='mb-0'>
+          Balance: <span className='text-danger'>{formatBalance(balance)}</span>{' '}
+          Mina
+        </Typography.Title>
+        <Button
+          className='pt-0'
+          icon={<ReloadOutlined />}
+          loading={loadingBalance}
+          onClick={handleReloadBalance}
+        />
+      </Space>
+      {/* {localStorage.getItem('wallet') === 'Auro' ? null : (
         <div>
           <div className='mt-1 mb-2'>
             <Typography.Title level={3}>Transactions:</Typography.Title>
@@ -508,7 +526,7 @@ function Connect() {
             })}
           </div>
         </div>
-      )}
+      )} */}
     </div>
   )
 }

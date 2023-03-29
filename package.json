@@ -1,6 +1,6 @@
 {
   "name": "react-wallet-selector",
-  "version": "1.7.1",
+  "version": "1.9.7",
   "description": "Made with create-react-library",
   "author": "Sotatek-HoangNguyen7",
   "license": "MIT",
@@ -51,6 +51,7 @@
     "dist"
   ],
   "dependencies": {
+    "@ant-design/icons": "^5.0.1",
     "antd": "^5.3.2",
     "bootstrap": "^5.2.3"
   }

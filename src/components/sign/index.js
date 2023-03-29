@@ -1,5 +1,5 @@
 /* eslint-disable no-undef */
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Form, Button, Card, Input } from 'antd'
 import { WALLET } from '../../services/multipleWallet'
 
@@ -7,6 +7,11 @@ const Sign = () => {
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
   const [sendMessageResult, setSendMessageResult] = useState('')
+  const [, forceUpdate] = useState({})
+
+  useEffect(() => {
+    forceUpdate({})
+  }, [])
 
   const layout = {
     labelCol: { span: 6 },
@@ -52,8 +57,8 @@ const Sign = () => {
   }
 
   return (
-    <Card title='Sign' type='inner'>
-      <Form form={form} autoComplete='off' {...layout}>
+    <Card title='Sign Custom Message' type='inner'>
+      <Form form={form} autoComplete='off' onFinish={sendButton} {...layout}>
         <Form.Item
           label='Message'
           name='signMessageContent'
@@ -67,15 +72,22 @@ const Sign = () => {
           <Input placeholder='Message' />
         </Form.Item>
 
-        <Form.Item wrapperCol={{ ...layout.wrapperCol, offset: 6 }}>
-          <Button
-            onClick={sendButton}
-            loading={loading}
-            type='primary'
-            htmlType='submit'
-          >
-            Send
-          </Button>
+        <Form.Item wrapperCol={{ span: 24, offset: 0 }} shouldUpdate>
+          {() => (
+            <Button
+              loading={loading}
+              type='primary'
+              htmlType='submit'
+              block
+              disabled={
+                !form.isFieldsTouched(true) ||
+                !!form.getFieldsError().filter(({ errors }) => errors.length)
+                  .length
+              }
+            >
+              Send
+            </Button>
+          )}
         </Form.Item>
       </Form>
       <p className='info-text alert alert-secondary mt-3 text-break'>

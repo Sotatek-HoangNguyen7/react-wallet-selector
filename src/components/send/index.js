@@ -1,12 +1,20 @@
 /* eslint-disable no-undef */
-import React, { useState } from 'react'
-import { Form, Button, Card, Input, Select } from 'antd'
+import React, { useState, useEffect } from 'react'
+import { Form, Button, Card, Input, Select, Collapse } from 'antd'
+import { CaretUpOutlined } from '@ant-design/icons'
 import { WALLET } from '../../services/multipleWallet'
+
+const { Panel } = Collapse
 
 const Send = () => {
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
   const [sendMessageResult, setSendMessageResult] = useState('')
+  const [, forceUpdate] = useState({})
+
+  useEffect(() => {
+    forceUpdate({})
+  }, [])
 
   const layout = {
     labelCol: { span: 6 },
@@ -40,6 +48,9 @@ const Send = () => {
           if (values.sendMemo) {
             newValues = { ...newSendContent, memo: values.sendMemo }
           }
+          if (values.sendFee2) {
+            newValues = { ...newSendContent, fee: values.sendFee2 }
+          }
           const result = await WALLET.MetamaskFlask.methods.SendTransaction(
             newValues
           )
@@ -52,7 +63,7 @@ const Send = () => {
           }
         } catch (error) {
           setLoading(false)
-          setSendMessageResult('error')
+          setSendMessageResult(error)
         }
       }
     } catch (errorInfo) {}
@@ -60,21 +71,9 @@ const Send = () => {
 
   return (
     <Card title='Send' type='inner'>
-      <Form form={form} autoComplete='off' {...layout}>
+      <Form form={form} autoComplete='off' {...layout} onFinish={sendButton}>
         <Form.Item
-          label='Amount'
-          name='sendAmount'
-          rules={[
-            {
-              required: true,
-              message: 'Please input Amount!'
-            }
-          ]}
-        >
-          <Input placeholder='Amount' />
-        </Form.Item>
-        <Form.Item
-          label='Address'
+          label='To'
           name='receiveAddress'
           rules={[
             {
@@ -86,24 +85,19 @@ const Send = () => {
           <Input placeholder='Address' />
         </Form.Item>
         <Form.Item
-          label='Fee'
-          name='sendFee'
+          label='Amount'
+          name='sendAmount'
           rules={[
             {
               required: true,
-              message: 'Please select Fee!'
+              message: 'Please input Amount!'
             }
           ]}
-          initialValue='0.0101'
         >
-          <Select>
-            <Select.Option value='0.0011'>Slow</Select.Option>
-            <Select.Option value='0.0101'>Default</Select.Option>
-            <Select.Option value='0.201'>Fast</Select.Option>
-          </Select>
+          <Input placeholder='0' />
         </Form.Item>
         <Form.Item
-          label='Memo'
+          label='Memo (Optional)'
           name='sendMemo'
           rules={[
             {
@@ -114,27 +108,76 @@ const Send = () => {
         >
           <Input />
         </Form.Item>
-        {/* <Form.Item
-          label='Nonce'
-          name='sendNonce'
+        <Form.Item
+          label='Fee'
+          name='sendFee'
           rules={[
             {
               required: false,
-              message: 'Please input Nonce!'
+              message: 'Please select Fee!'
             }
           ]}
+          initialValue='0.0101'
         >
-          <Input />
-        </Form.Item> */}
-        <Form.Item wrapperCol={{ ...layout.wrapperCol, offset: 6 }}>
-          <Button
-            onClick={sendButton}
-            loading={loading}
-            type='primary'
-            htmlType='submit'
-          >
-            Send
-          </Button>
+          <Select>
+            <Select.Option value='0.0011'>Slow(0.0011)</Select.Option>
+            <Select.Option value='0.0101'>Default(0.0101)</Select.Option>
+            <Select.Option value='0.201'>Fast(0.201)</Select.Option>
+          </Select>
+        </Form.Item>
+        <hr className='m-0' />
+
+        <Collapse
+          ghost
+          expandIcon={({ isActive }) => (
+            <CaretUpOutlined rotate={isActive ? 0 : 180} />
+          )}
+          expandIconPosition='end'
+        >
+          <Panel header='Advanced' key='1'>
+            <Form.Item
+              label='Transaction Fee'
+              name='sendFee2'
+              rules={[
+                {
+                  required: false,
+                  message: 'Please input Nonce!'
+                }
+              ]}
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item
+              label='Nonce'
+              name='sendNonce'
+              rules={[
+                {
+                  required: false,
+                  message: 'Please input Nonce!'
+                }
+              ]}
+            >
+              <Input />
+            </Form.Item>
+          </Panel>
+        </Collapse>
+        <Form.Item wrapperCol={{ span: 24, offset: 0 }} shouldUpdate>
+          {() => (
+            <Button
+              loading={loading}
+              type='primary'
+              htmlType='submit'
+              block
+              disabled={
+                !form.getFieldValue('receiveAddress') ||
+                !form.getFieldValue('sendAmount') ||
+                !!form.getFieldsError().filter(({ errors }) => errors.length)
+                  .length
+              }
+            >
+              Send
+            </Button>
+          )}
         </Form.Item>
       </Form>
       <p className='info-text alert alert-secondary mt-3 text-break'>
