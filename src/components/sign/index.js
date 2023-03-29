@@ -1,13 +1,19 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable no-undef */
 import React, { useState, useEffect } from 'react'
 import { Form, Button, Card, Input } from 'antd'
 import { WALLET } from '../../services/multipleWallet'
+import { useAppSelector } from '../../hooks/redux'
 
 const Sign = () => {
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
   const [sendMessageResult, setSendMessageResult] = useState('')
   const [, forceUpdate] = useState({})
+
+  const { isInstalledWallet, connected } = useAppSelector(
+    (state) => state.wallet
+  )
 
   useEffect(() => {
     forceUpdate({})

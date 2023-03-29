@@ -45,6 +45,7 @@ function Connect(props) {
   }
 
   useEffect(() => {
+    if (!localStorage.getItem('wallet')) return
     if (localStorage.getItem('wallet') === 'Auro') {
       window.mina?.on('chainChanged', async (network) => {
         const result = await WALLET.Auro.methods.connectToAuro()
@@ -78,6 +79,7 @@ function Connect(props) {
   }, [])
 
   useEffect(() => {
+    if (!localStorage.getItem('wallet')) return
     if (localStorage.getItem('wallet') === 'Auro') {
       window.mina?.on('accountsChanged', async (accounts) => {
         setLoading(false)
@@ -175,11 +177,11 @@ function Connect(props) {
   }
 
   const handleConnect = async () => {
-    setLoading(true)
     checkInstallWhenCallAction()
     dispatch(clearActiveAccount())
     const wallet = localStorage.getItem('wallet')
     if (!wallet) return
+    setLoading(true)
     if (wallet === 'Auro') {
       connectToAuro()
     } else {

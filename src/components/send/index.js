@@ -1,8 +1,10 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable no-undef */
 import React, { useState, useEffect } from 'react'
 import { Form, Button, Card, Input, Select, Collapse } from 'antd'
 import { CaretUpOutlined } from '@ant-design/icons'
 import { WALLET } from '../../services/multipleWallet'
+import { useAppSelector } from '../../hooks/redux'
 
 const { Panel } = Collapse
 
@@ -12,6 +14,10 @@ const Send = () => {
   const [open, setOpen] = useState(false)
   const [sendMessageResult, setSendMessageResult] = useState('')
   const [, forceUpdate] = useState({})
+
+  const { isInstalledWallet, connected } = useAppSelector(
+    (state) => state.wallet
+  )
 
   useEffect(() => {
     forceUpdate({})
