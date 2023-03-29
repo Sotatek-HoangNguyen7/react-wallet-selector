@@ -80,4 +80,31 @@ export const handelCoppy = (data = '', id = '') => {
   element?.removeChild(storage)
 }
 
+export const getUrlProxy = (network) => {
+  let urlProxy = 'https://proxy.minaexplorer.com/'
+  if (network === 'Mainnet') urlProxy = 'https://proxy.minaexplorer.com/'
+  if (network === 'Devnet') urlProxy = 'https://proxy.devnet.minaexplorer.com/'
+  if (network === 'Berkeley')
+    urlProxy = 'https://proxy.berkeley.minaexplorer.com/'
+  return urlProxy
+}
+
+export const openLinkInstallFlask = (wallet) => {
+  const auroLink =
+    'https://chrome.google.com/webstore/detail/auro-wallet/cnmamaachppnkjgnildpdmkaakejnhae'
+  const MetamaskFlaskLink =
+    'https://chrome.google.com/webstore/detail/metamask-flask-developmen/ljfoeinjpaedjfecbmggjgodbgkmjkjk'
+  if (wallet === 'Auro') {
+    window.open(auroLink, '_blank')?.focus()
+  } else {
+    window.open(MetamaskFlaskLink, '_blank')?.focus()
+  }
+}
+
+export const iconWallet = {
+  MetamaskFlask:
+    'https://addons.mozilla.org/user-media/addon_icons/2729/2729495-64.png?modified=88e149c3',
+  Auro: 'https://www.aurowallet.com/wp-content/uploads/2022/10/icon-new.svg'
+}
+
 export const dateFomat = 'YYYY-MM-DD hh:mm:ss'

@@ -60,6 +60,8 @@ const Send = () => {
           if (result) {
             setLoading(false)
             setSendMessageResult(JSON.stringify(result))
+          } else {
+            setLoading(false)
           }
         } catch (error) {
           setLoading(false)

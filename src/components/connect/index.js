@@ -1,18 +1,23 @@
-/* eslint-disable no-inner-declarations */
-/* eslint-disable no-unused-expressions */
-/* eslint-disable no-unused-vars */
 /* eslint-disable no-undef */
+/* eslint-disable no-unused-expressions */
 import React, { useEffect, useState } from 'react'
 import { Avatar, Segmented, Space, Button, Typography } from 'antd'
 import { ReloadOutlined } from '@ant-design/icons'
 import { WALLET } from '../../services/multipleWallet'
 import { useAppSelector, useAppDispatch } from '../../hooks/redux'
-import { formatBalance, formatAddress } from '../../utils/utils'
 import {
-  connectWallet,
+  formatBalance,
+  formatAddress,
+  getUrlProxy,
+  openLinkInstallFlask,
+  iconWallet
+} from '../../utils/utils'
+import {
+  login,
+  logout,
   setActiveAccount,
-  // setTransactions,
-  setNetWork,
+  clearActiveAccount,
+  setNetWorkStore,
   setWalletInstalled
 } from '../../slices/walletSlice'
 import { useHasWalet } from '../../hooks/useHasWalet'
@@ -20,65 +25,40 @@ import detectEthereumProvider from '@metamask/detect-provider'
 
 const ethers = require('ethers')
 
-function Connect() {
+function Connect(props) {
   const dispatch = useAppDispatch()
-  const { isInstalledWallet, activeAccount, balance, network } = useAppSelector(
-    (state) => state.wallet
-  )
-  const [value, setValue] = useState(network)
+  const { isInstalledWallet, activeAccount, balance, network, connected } =
+    useAppSelector((state) => state.wallet)
+  const [value, setNetWorkState] = useState(network)
   const [loading, setLoading] = useState(false)
-  const [disableConectButton, setDisableConectButton] = useState(false)
   const [loadingBalance, setLoadingBalance] = useState(false)
-
-  useEffect(() => {
-    localStorage.setItem(
-      'wallet',
-      localStorage.getItem('wallet') || 'MetamaskFlask'
-    )
-  }, [])
 
   useHasWalet()
 
   useEffect(() => {
-    dispatch(setNetWork(value))
+    dispatch(setNetWorkStore(value))
   }, [value])
 
   const requestNetWork = async () => {
     const info = await WALLET.MetamaskFlask.methods.GetNetworkConfigSnap()
-    if (info) setValue(info?.name)
+    if (info) setNetWorkState(info?.name)
   }
 
   useEffect(() => {
     if (localStorage.getItem('wallet') === 'Auro') {
       window.mina?.on('chainChanged', async (network) => {
         const result = await WALLET.Auro.methods.connectToAuro()
-        setValue(network)
-        const isInstalled = window.mina
+        setNetWorkState(network)
         if (result.message) {
           setLoading(false)
         } else {
           setLoading(false)
-          const accountList = await WALLET.Auro.methods.AccountList()
-          let urlProxy = 'https://proxy.minaexplorer.com/'
-          if (network === 'Mainnet')
-            urlProxy = 'https://proxy.minaexplorer.com/'
-          if (network === 'Devnet')
-            urlProxy = 'https://proxy.devnet.minaexplorer.com/'
-          if (network === 'Berkeley')
-            urlProxy = 'https://proxy.berkeley.minaexplorer.com/'
           const { account: accountInfor } =
             await WALLET.Auro.methods.getAccountInfors(
               result.toString(),
-              urlProxy
+              getUrlProxy(network)
             )
-          // const txList = await await WALLET.Auro.methods.getTxHistory(urlProxy, result.toString());
-          // dispatch(setTransactions([]))
-          dispatch(
-            connectWallet({
-              accountList,
-              isInstalled
-            })
-          )
+          dispatch(login())
           dispatch(
             setActiveAccount({
               activeAccount: accountInfor.publicKey,
@@ -100,28 +80,13 @@ function Connect() {
   useEffect(() => {
     if (localStorage.getItem('wallet') === 'Auro') {
       window.mina?.on('accountsChanged', async (accounts) => {
-        const isInstalled = window.mina
         setLoading(false)
-        const accountList = await WALLET.Auro.methods.AccountList()
-        let urlProxy = 'https://proxy.minaexplorer.com/'
-        if (network === 'Mainnet') urlProxy = 'https://proxy.minaexplorer.com/'
-        if (network === 'Devnet')
-          urlProxy = 'https://proxy.devnet.minaexplorer.com/'
-        if (network === 'Berkeley')
-          urlProxy = 'https://proxy.berkeley.minaexplorer.com/'
         const { account: accountInfor } =
           await WALLET.Auro.methods.getAccountInfors(
             accounts.toString(),
-            urlProxy
+            getUrlProxy(network)
           )
-        // const txList = await await WALLET.Auro.methods.getTxHistory(urlProxy, result.toString());
-        // dispatch(setTransactions([]))
-        dispatch(
-          connectWallet({
-            accountList,
-            isInstalled
-          })
-        )
+        dispatch(login())
         dispatch(
           setActiveAccount({
             activeAccount: accountInfor.publicKey,
@@ -167,29 +132,17 @@ function Connect() {
   const connectToAuro = async (isloadBalance) => {
     const result = await WALLET.Auro.methods.connectToAuro()
     const network = await window.mina?.requestNetwork().catch((err) => err)
-    setValue(network)
-    const isInstalled = window.mina
+    setNetWorkState(network)
     if (result.message) {
       setLoading(false)
       if (isloadBalance) setLoadingBalance(false)
     } else {
-      const accountList = await WALLET.Auro.methods.AccountList()
-      let urlProxy = 'https://proxy.minaexplorer.com/'
-      if (network === 'Mainnet') urlProxy = 'https://proxy.minaexplorer.com/'
-      if (network === 'Devnet')
-        urlProxy = 'https://proxy.devnet.minaexplorer.com/'
-      if (network === 'Berkeley')
-        urlProxy = 'https://proxy.berkeley.minaexplorer.com/'
       const { account: accountInfor } =
-        await WALLET.Auro.methods.getAccountInfors(result.toString(), urlProxy)
-      // const txList = await await WALLET.Auro.methods.getTxHistory(urlProxy, result.toString());
-      // dispatch(setTransactions([]))
-      dispatch(
-        connectWallet({
-          accountList,
-          isInstalled
-        })
-      )
+        await WALLET.Auro.methods.getAccountInfors(
+          result.toString(),
+          getUrlProxy(network)
+        )
+      dispatch(login())
       dispatch(
         setActiveAccount({
           activeAccount: accountInfor.publicKey,
@@ -204,20 +157,11 @@ function Connect() {
   }
 
   const connectToMetaMaskFlask = async (isloadBalance) => {
+    setNetWorkState(value)
     await WALLET.MetamaskFlask.methods.connectToSnap()
-    const isInstalledSnap = await WALLET.MetamaskFlask.methods.getSnap()
     await WALLET.MetamaskFlask.methods.SwitchNetwork(value)
-    setNetWork(value)
-    const accountList = await WALLET.MetamaskFlask.methods.AccountList()
     const accountInfor = await WALLET.MetamaskFlask.methods.getAccountInfors()
-    // const txList = await await WALLET.MetamaskFlask.methods.getTxHistory()
-    // dispatch(setTransactions(txList))
-    dispatch(
-      connectWallet({
-        accountList,
-        isInstalledSnap
-      })
-    )
+    dispatch(login())
     dispatch(
       setActiveAccount({
         activeAccount: accountInfor.publicKey,
@@ -233,16 +177,8 @@ function Connect() {
   const handleConnect = async () => {
     setLoading(true)
     checkInstallWhenCallAction()
-    // dispatch(setTransactions([]))
-    dispatch(
-      setActiveAccount({
-        activeAccount: '',
-        balance: '',
-        accountName: '',
-        inferredNonce: ''
-      })
-    )
-    const wallet = localStorage.getItem('wallet') || 'MetamaskFlask'
+    dispatch(clearActiveAccount())
+    const wallet = localStorage.getItem('wallet')
     if (!wallet) return
     if (wallet === 'Auro') {
       connectToAuro()
@@ -258,18 +194,9 @@ function Connect() {
   }, [])
 
   const handleChangeWallet = (str) => {
-    const val = str || 'MetamaskFlask'
     setLoading(false)
-    localStorage.setItem('wallet', val)
-    // dispatch(setTransactions([]))
-    dispatch(
-      setActiveAccount({
-        activeAccount: '',
-        balance: '',
-        accountName: '',
-        inferredNonce: ''
-      })
-    )
+    localStorage.setItem('wallet', str)
+    dispatch(clearActiveAccount())
     setTimeout(() => {
       checkInstallWhenCallAction()
     })
@@ -277,18 +204,8 @@ function Connect() {
 
   const handleChageNetWork = async (str) => {
     setLoading(true)
-    setValue(str)
-    // dispatch(setTransactions([]))
-    dispatch(
-      setActiveAccount({
-        activeAccount: '',
-        balance: '',
-        accountName: '',
-        inferredNonce: ''
-      })
-    )
-
-    const wallet = localStorage.getItem('wallet') || 'MetamaskFlask'
+    const wallet = localStorage.getItem('wallet')
+    dispatch(clearActiveAccount())
 
     if (!wallet) return
 
@@ -296,17 +213,10 @@ function Connect() {
       await WALLET.MetamaskFlask.methods
         .SwitchNetwork(str)
         .then(async () => {
-          dispatch(setNetWork(str))
-          const accountList = await WALLET.MetamaskFlask.methods.AccountList()
+          setNetWorkState(str)
           const accountInfor =
             await WALLET.MetamaskFlask.methods.getAccountInfors()
-          // const txList = await WALLET.MetamaskFlask.methods.getTxHistory()
-          // await dispatch(setTransactions(txList))
-          dispatch(
-            connectWallet({
-              accountList
-            })
-          )
+          dispatch(login())
           await dispatch(
             setActiveAccount({
               activeAccount: accountInfor.publicKey,
@@ -325,12 +235,13 @@ function Connect() {
         })
     }
     if (wallet === 'Auro') {
+      setNetWorkState(str)
       // NOT SUPPORT
     }
   }
 
   const handleReloadBalance = () => {
-    const wallet = localStorage.getItem('wallet') || 'MetamaskFlask'
+    const wallet = localStorage.getItem('wallet')
     if (!wallet) return
     setLoadingBalance(true)
     if (wallet === 'Auro') {
@@ -340,28 +251,9 @@ function Connect() {
     }
   }
 
-  const openLinkInstallFlask = () => {
-    const wallet = localStorage.getItem('wallet')
-    const auroLink =
-      'https://chrome.google.com/webstore/detail/auro-wallet/cnmamaachppnkjgnildpdmkaakejnhae'
-    const MetamaskFlaskLink =
-      'https://chrome.google.com/webstore/detail/metamask-flask-developmen/ljfoeinjpaedjfecbmggjgodbgkmjkjk'
-    if (wallet === 'Auro') {
-      window.open(auroLink, '_blank')?.focus()
-    } else {
-      window.open(MetamaskFlaskLink, '_blank')?.focus()
-    }
+  const handleLogout = () => {
+    dispatch(logout())
   }
-
-  // export const OPTIONS_NETWORK = ['Mainnet', 'Devnet', 'Berkeley'];
-
-  // const renderHashLink = () => {
-  //   if (network === 'Mainnet') return 'https://minaexplorer.com/transaction/'
-  //   if (network === 'Devnet')
-  //     return 'https://devnet.minaexplorer.com/transaction/'
-  //   if (network === 'Berkeley')
-  //     return 'https://berkeley.minaexplorer.com/transaction/'
-  // }
 
   return (
     <div>
@@ -376,7 +268,7 @@ function Connect() {
                   <Avatar
                     shape='square'
                     size={80}
-                    src='https://addons.mozilla.org/user-media/addon_icons/2729/2729495-64.png?modified=88e149c3'
+                    src={iconWallet.MetamaskFlask}
                   />
                 </div>
               ),
@@ -385,11 +277,7 @@ function Connect() {
             {
               label: (
                 <div style={{ padding: 4 }}>
-                  <Avatar
-                    shape='square'
-                    size={100}
-                    src='https://www.aurowallet.com/wp-content/uploads/2022/10/icon-new.svg'
-                  />
+                  <Avatar shape='square' size={100} src={iconWallet.Auro} />
                 </div>
               ),
               value: 'Auro'
@@ -403,20 +291,30 @@ function Connect() {
           options={['Mainnet', 'Devnet', 'Berkeley']}
         />
         {!isInstalledWallet ? (
-          <Button onClick={() => openLinkInstallFlask()}>
+          <Button
+            onClick={() => openLinkInstallFlask(localStorage.getItem('wallet'))}
+            danger
+          >
             {localStorage.getItem('wallet') === 'Auro'
-              ? 'Please install Auro Wallet Click here!'
+              ? 'Please install Auro Wallet. Click here!'
               : 'Metamask Flask is required to run snap!'}
           </Button>
         ) : (
-          <Button
-            disabled={disableConectButton || loading}
-            onClick={handleConnect}
-            loading={loading}
-            type='primary'
-          >
-            Connect wallet
-          </Button>
+          <Space>
+            <Button
+              disabled={loading}
+              onClick={handleConnect}
+              loading={loading}
+              type='primary'
+            >
+              Connect wallet
+            </Button>
+            {connected && (
+              <Button onClick={handleLogout} type='primary' danger>
+                Disconnect
+              </Button>
+            )}
+          </Space>
         )}
       </Space>
       <hr />
@@ -435,98 +333,6 @@ function Connect() {
           onClick={handleReloadBalance}
         />
       </Space>
-      {/* {localStorage.getItem('wallet') === 'Auro' ? null : (
-        <div>
-          <div className='mt-1 mb-2'>
-            <Typography.Title level={3}>Transactions:</Typography.Title>
-            {transactions.map((el, index) => {
-              return (
-                <Space
-                  key={index}
-                  direction='vertical'
-                  size='middle'
-                  style={{ display: 'flex' }}
-                >
-                  <Card size='small'>
-                    <div>
-                      Amount:{' '}
-                      <span
-                        className={`${
-                          el.from === activeAccount
-                            ? 'text-danger'
-                            : 'text-success'
-                        }`}
-                      >
-                        {(el.from === activeAccount ? `- ` : `+ `) +
-                          formatBalance(
-                            ethers.utils.formatUnits(el?.amount, 'gwei')
-                          )}
-                      </span>
-                    </div>
-                    <div>
-                      DateTime:{' '}
-                      <span className='text-info'>
-                        {moment(el.dateTime).format(dateFomat)}
-                      </span>
-                    </div>
-                    <div>
-                      Fee:{' '}
-                      <span className='text-info'>
-                        {formatBalance(
-                          ethers.utils.formatUnits(el?.fee || 0, 'gwei')
-                        )}
-                      </span>
-                    </div>
-                    <div>
-                      FeeToken: <span className='text-info'>{el.feeToken}</span>
-                    </div>
-                    <div>
-                      From:{' '}
-                      <span
-                        className='text-info cursor-pointer'
-                        onClick={() =>
-                          handelCoppy(el.from, `${el.from}${index}`)
-                        }
-                      >
-                        {formatAddress(el.from)}
-                      </span>
-                    </div>
-                    <div>
-                      To:{' '}
-                      <span
-                        className='text-info cursor-pointer'
-                        onClick={() => handelCoppy(el.from, `${el.to}${index}`)}
-                      >
-                        {formatAddress(el.to)}
-                      </span>
-                    </div>
-                    <div>
-                      Hash:{' '}
-                      <a
-                        href={renderHashLink() + el?.hash}
-                        target='_blank'
-                        className='text-info'
-                        rel='noreferrer'
-                      >
-                        {el.hash}
-                      </a>
-                    </div>
-                    <div>
-                      Memo: <span className='text-info'>{el.memo}</span>
-                    </div>
-                    <div>
-                      Nonce: <span className='text-info'>{el.nonce}</span>
-                    </div>
-                    <div>
-                      Status: <span className='text-info'>{el.status}</span>
-                    </div>
-                  </Card>
-                </Space>
-              )
-            })}
-          </div>
-        </div>
-      )} */}
     </div>
   )
 }

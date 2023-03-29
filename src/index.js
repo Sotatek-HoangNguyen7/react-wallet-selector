@@ -6,26 +6,26 @@ import AppProvider from './provider'
 import '../node_modules/bootstrap/dist/css/bootstrap.min.css'
 import './styles.module.css'
 
-export const SelectWalet = ({ children }) => {
+export const SelectWalet = ({ children, data }) => {
   return (
     <AppProvider>
-      <Connect />
+      <Connect data={data} />
     </AppProvider>
   )
 }
 
-export const SendWalet = ({ children }) => {
+export const SendWalet = ({ children, data }) => {
   return (
     <AppProvider>
-      <Send />
+      <Send data={data} />
     </AppProvider>
   )
 }
 
-export const SignWalet = ({ children }) => {
+export const SignWalet = ({ children, data }) => {
   return (
     <AppProvider>
-      <Sign />
+      <Sign data={data} />
     </AppProvider>
   )
 }

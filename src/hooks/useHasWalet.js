@@ -5,7 +5,7 @@ import { useEffect, useRef } from 'react'
 import { setWalletInstalled } from '../slices/walletSlice'
 
 export const useHasWalet = () => {
-  const wallet = localStorage.getItem('wallet') || 'MetamaskFlask'
+  const wallet = localStorage.getItem('wallet')
   const firstTimeRun = useRef(null)
   const dispatch = useAppDispatch()
   const detectWallet = async () => {
