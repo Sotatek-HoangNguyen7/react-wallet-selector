@@ -15,6 +15,8 @@ const Sign = () => {
     (state) => state.wallet
   )
 
+  console.log('connected', connected)
+
   useEffect(() => {
     forceUpdate({})
   }, [])
@@ -26,7 +28,7 @@ const Sign = () => {
 
   const sendButton = async () => {
     const wallet = localStorage.getItem('wallet')
-    if (!wallet) return setSendMessageResult('Please connect wallet!')
+    if (!connected) return setSendMessageResult('Please connect wallet!')
     setSendMessageResult('')
     try {
       const values = await form.validateFields()

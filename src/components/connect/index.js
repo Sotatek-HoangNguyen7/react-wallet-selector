@@ -1,3 +1,4 @@
+/* eslint-disable handle-callback-err */
 /* eslint-disable no-undef */
 /* eslint-disable no-unused-expressions */
 import React, { useEffect, useState } from 'react'
@@ -132,8 +133,14 @@ function Connect(props) {
   }
 
   const connectToAuro = async (isloadBalance) => {
-    const result = await WALLET.Auro.methods.connectToAuro()
-    const network = await window.mina?.requestNetwork().catch((err) => err)
+    const result = await WALLET.Auro.methods.connectToAuro().catch((err) => {
+      console.log('connectToAuro', connectToAuro)
+      setLoading(false)
+    })
+    const network = await window.mina?.requestNetwork().catch((err) => {
+      console.log('requestNetwork', connectToAuro)
+      setLoading(false)
+    })
     setNetWorkState(network)
     if (result.message) {
       setLoading(false)
