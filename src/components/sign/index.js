@@ -52,19 +52,19 @@ const Sign = () => {
   }
 
   return (
-    <Card title='Send' type='inner'>
+    <Card title='Sign' type='inner'>
       <Form form={form} autoComplete='off' {...layout}>
         <Form.Item
-          label='Sign content'
+          label='Message'
           name='signMessageContent'
           rules={[
             {
               required: true,
-              message: 'Please input Sign content!'
+              message: 'Please input Message!'
             }
           ]}
         >
-          <Input />
+          <Input placeholder='Message' />
         </Form.Item>
 
         <Form.Item wrapperCol={{ ...layout.wrapperCol, offset: 6 }}>

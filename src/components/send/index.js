@@ -62,28 +62,28 @@ const Send = () => {
     <Card title='Send' type='inner'>
       <Form form={form} autoComplete='off' {...layout}>
         <Form.Item
-          label='Send amount'
+          label='Amount'
           name='sendAmount'
           rules={[
             {
               required: true,
-              message: 'Please input Send amount!'
+              message: 'Please input Amount!'
             }
           ]}
         >
-          <Input />
+          <Input placeholder='Amount' />
         </Form.Item>
         <Form.Item
-          label='Receive address'
+          label='Address'
           name='receiveAddress'
           rules={[
             {
               required: true,
-              message: 'Please input Receive address!'
+              message: 'Please input Address!'
             }
           ]}
         >
-          <Input />
+          <Input placeholder='Address' />
         </Form.Item>
         <Form.Item
           label='Fee'
@@ -114,7 +114,7 @@ const Send = () => {
         >
           <Input />
         </Form.Item>
-        <Form.Item
+        {/* <Form.Item
           label='Nonce'
           name='sendNonce'
           rules={[
@@ -125,7 +125,7 @@ const Send = () => {
           ]}
         >
           <Input />
-        </Form.Item>
+        </Form.Item> */}
         <Form.Item wrapperCol={{ ...layout.wrapperCol, offset: 6 }}>
           <Button
             onClick={sendButton}
