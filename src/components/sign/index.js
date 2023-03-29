@@ -26,6 +26,7 @@ const Sign = () => {
 
   const sendButton = async () => {
     const wallet = localStorage.getItem('wallet') || 'MetamaskFlask'
+    if (!wallet) return setSendMessageResult('Please connect wallet!')
     setSendMessageResult('')
     try {
       const values = await form.validateFields()
