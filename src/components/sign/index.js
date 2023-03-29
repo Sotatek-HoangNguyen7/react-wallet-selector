@@ -25,7 +25,7 @@ const Sign = () => {
   }
 
   const sendButton = async () => {
-    const wallet = localStorage.getItem('wallet') || 'MetamaskFlask'
+    const wallet = localStorage.getItem('wallet')
     if (!wallet) return setSendMessageResult('Please connect wallet!')
     setSendMessageResult('')
     try {
