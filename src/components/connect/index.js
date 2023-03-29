@@ -179,7 +179,7 @@ function Connect(props) {
   const handleConnect = async () => {
     checkInstallWhenCallAction()
     dispatch(clearActiveAccount())
-    const wallet = localStorage.getItem('wallet')
+    const wallet = localStorage.getItem('wallet') || value || 'MetamaskFlask'
     if (!wallet) return
     setLoading(true)
     if (wallet === 'Auro') {
