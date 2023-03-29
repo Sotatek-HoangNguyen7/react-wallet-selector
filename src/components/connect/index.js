@@ -190,6 +190,7 @@ function Connect(props) {
   }
 
   useEffect(() => {
+    if (!localStorage.getItem('wallet')) return
     setTimeout(() => {
       handleConnect()
     }, 200)
