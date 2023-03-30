@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 /* eslint-disable no-unused-expressions */
 import axios from 'axios'
 import bs58check from 'bs58check'
@@ -59,6 +60,66 @@ export const formatBalance = (balance, dec = 4) => {
     return whole + '.' + last
   }
   return '0'
+}
+
+export function formatMoney(number, unit = '', notInit, fixedNumber = 4) {
+  if (typeof number === 'string') {
+    return `${number.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}${
+      unit ? `${unit}` : ''
+    }`
+  }
+  if (!!number || number === 0) {
+    if (!Number(number) && number !== 0) {
+      return number
+    }
+    if (number === 0) {
+      return `${number}${unit ? `${unit}` : ''}`
+    }
+    if ((number > 0 && number < 1) || (number < 0 && number > -1)) {
+      return `${number.toFixed(fixedNumber)}${unit ? `${unit}` : ''}`
+    }
+    if (number % 2 !== 0 && number - Math.floor(number) > 0) {
+      if (
+        number.toString().split('.')[1] &&
+        number.toString().split('.')[1].length > 2
+      ) {
+        const newNumber =
+          number - Math.floor(number.toFixed(fixedNumber)) > 0
+            ? number.toFixed(fixedNumber)
+            : number.toFixed(0)
+        return `${newNumber.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}${
+          unit ? `${unit}` : ''
+        }`
+      }
+      return `${number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}${
+        unit ? `${unit}` : ''
+      }`
+    }
+    return `${number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}${
+      unit ? `${unit}` : ''
+    }`
+  }
+  if (notInit) {
+    return ''
+  }
+  return '--'
+}
+
+export const blockInvalidChar = (e) =>
+  ['e', 'E', '+', '-'].includes(e.key) && e.preventDefault()
+
+export const blockInvalidInt = (e) =>
+  ['e', 'E', '+', '-', '.'].includes(e.key) && e.preventDefault()
+
+export const toPlainString = (num) => {
+  return ('' + +num).replace(
+    /(-?)(\d*)\.?(\d*)e([+-]\d+)/,
+    function (a, b, c, d, e) {
+      return e < 0
+        ? b + '0.' + Array(1 - e - c.length).join('0') + c + d
+        : b + c + d + Array(e - d.length + 1).join('0')
+    }
+  )
 }
 
 export const formatAddress = (address = '') => {

@@ -1,7 +1,8 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-undef */
 import React, { useState, useEffect } from 'react'
-import { Form, Button, Card, Input, Select, Collapse } from 'antd'
+import { Form, Button, Card, Input, Collapse, Radio } from 'antd'
+import { blockInvalidChar } from '../../utils/utils'
 import { CaretUpOutlined } from '@ant-design/icons'
 import { WALLET } from '../../services/multipleWallet'
 import { useAppSelector } from '../../hooks/redux'
@@ -13,9 +14,10 @@ const Send = () => {
   const [loading, setLoading] = useState(false)
   const [open, setOpen] = useState(false)
   const [sendMessageResult, setSendMessageResult] = useState('')
+  const [placeholder, setPlaceholder] = useState('0.0101')
   const [, forceUpdate] = useState({})
 
-  const { isInstalledWallet, connected } = useAppSelector(
+  const { isInstalledWallet, connected, balance } = useAppSelector(
     (state) => state.wallet
   )
 
@@ -78,13 +80,40 @@ const Send = () => {
     } catch (errorInfo) {}
   }
 
-  const handleChangeCollapse = (key) => {
+  const handleChangeCollapse = () => {
     setOpen(!open)
   }
 
+  const handleClickMax = () => {
+    form.setFieldValue('sendAmount', balance)
+  }
+
+  const handleOnChangeBalance = (event) => {}
+
+  const handleChangeFee = ({ target: { value } }) => {
+    setPlaceholder(value)
+  }
+
+  const handleChangeFeeInput = (value) => {
+    if (value === '0.0011' || value === '0.0101' || value === '0.201')
+      form.setFieldValue('sendFee', value)
+  }
+
+  const options = [
+    { label: 'Slow', value: '0.0011' },
+    { label: 'Default', value: '0.0101' },
+    { label: 'Fast', value: '0.201' }
+  ]
+
   return (
     <Card title='Send' type='inner'>
-      <Form form={form} autoComplete='off' {...layout} onFinish={sendButton}>
+      <Form
+        form={form}
+        autoComplete='off'
+        {...layout}
+        onFinish={sendButton}
+        hideRequiredMark
+      >
         <Form.Item
           label='To'
           name='receiveAddress'
@@ -107,7 +136,12 @@ const Send = () => {
             }
           ]}
         >
-          <Input placeholder='0' />
+          <Input
+            placeholder='0'
+            onKeyDown={blockInvalidChar}
+            pattern='^\$\d{1,3}(,\d{3})*(\.\d+)?$'
+            suffix={<span onClick={handleClickMax}>Max</span>}
+          />
         </Form.Item>
         <Form.Item
           label='Memo (Optional)'
@@ -132,11 +166,11 @@ const Send = () => {
           ]}
           initialValue='0.0101'
         >
-          <Select>
-            <Select.Option value='0.0011'>Slow(0.0011)</Select.Option>
-            <Select.Option value='0.0101'>Default(0.0101)</Select.Option>
-            <Select.Option value='0.201'>Fast(0.201)</Select.Option>
-          </Select>
+          <Radio.Group
+            options={options}
+            onChange={handleChangeFee}
+            optionType='button'
+          />
         </Form.Item>
         <hr className='m-0' />
         <Collapse
@@ -160,19 +194,11 @@ const Send = () => {
               }
             ]}
           >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            label='Nonce'
-            name='sendNonce'
-            rules={[
-              {
-                required: false,
-                message: 'Please input Nonce!'
-              }
-            ]}
-          >
-            <Input />
+            <Input
+              placeholder={placeholder}
+              onKeyDown={blockInvalidChar}
+              onChange={handleChangeFeeInput}
+            />
           </Form.Item>
         </div>
         <div className='submit-section'>

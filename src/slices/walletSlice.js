@@ -41,6 +41,10 @@ export const walletSlice = createSlice({
       state.connected = true
       return state
     },
+    changeWalletBoforeConnect: (state) => {
+      state.connected = false
+      return state
+    },
     logout: (state) => {
       state.connected = false
       state.activeAccount = ''
@@ -60,6 +64,7 @@ export const {
   login,
   setWalletInstalled,
   setTransactions,
+  changeWalletBoforeConnect,
   logout
 } = walletSlice.actions
 

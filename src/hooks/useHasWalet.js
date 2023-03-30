@@ -4,7 +4,7 @@ import detectEthereumProvider from '@metamask/detect-provider'
 import { useEffect, useRef } from 'react'
 import { setWalletInstalled } from '../slices/walletSlice'
 
-export const useHasWalet = () => {
+export const useHasWalet = (callback) => {
   const wallet = localStorage.getItem('wallet')
   const firstTimeRun = useRef(null)
   const dispatch = useAppDispatch()
@@ -22,6 +22,7 @@ export const useHasWalet = () => {
         )?.includes('flask')
         if (provider && isFlask) {
           dispatch(setWalletInstalled(true))
+          callback()
         } else dispatch(setWalletInstalled(false))
       } catch (e) {
         dispatch(setWalletInstalled(false))
@@ -29,7 +30,10 @@ export const useHasWalet = () => {
         firstTimeRun.current = true
       }
     } else {
-      if (window.mina) return dispatch(setWalletInstalled(true))
+      if (window.mina) {
+        callback()
+        return dispatch(setWalletInstalled(true))
+      }
       return dispatch(setWalletInstalled(false))
     }
   }

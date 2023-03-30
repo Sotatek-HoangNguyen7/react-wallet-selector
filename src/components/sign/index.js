@@ -68,7 +68,13 @@ const Sign = () => {
 
   return (
     <Card title='Sign Custom Message' type='inner'>
-      <Form form={form} autoComplete='off' onFinish={sendButton} {...layout}>
+      <Form
+        form={form}
+        autoComplete='off'
+        onFinish={sendButton}
+        {...layout}
+        hideRequiredMark
+      >
         <Form.Item
           label='Message'
           name='signMessageContent'

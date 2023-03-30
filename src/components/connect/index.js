@@ -19,7 +19,8 @@ import {
   setActiveAccount,
   clearActiveAccount,
   setNetWorkStore,
-  setWalletInstalled
+  setWalletInstalled,
+  changeWalletBoforeConnect
 } from '../../slices/walletSlice'
 import { useHasWalet } from '../../hooks/useHasWalet'
 import detectEthereumProvider from '@metamask/detect-provider'
@@ -34,7 +35,23 @@ function Connect(props) {
   const [loading, setLoading] = useState(false)
   const [loadingBalance, setLoadingBalance] = useState(false)
 
-  useHasWalet()
+  const checkLogOut = async () => {
+    if (localStorage.getItem('wallet') === 'MetamaskFlask') {
+      const getIsUnlocked = async () =>
+        await window.ethereum._metamask.isUnlocked()
+      const isUnlocked = await getIsUnlocked()
+      if (!isUnlocked) dispatch(changeWalletBoforeConnect())
+    }
+    if (window.mina && localStorage.getItem('wallet') === 'Auro') {
+      dispatch(changeWalletBoforeConnect())
+      const result = await WALLET.Auro.methods
+        .connectToAuro()
+        .catch((err) => err)
+      if (result) dispatch(login())
+    }
+  }
+
+  useHasWalet(checkLogOut)
 
   useEffect(() => {
     dispatch(setNetWorkStore(value))
@@ -183,12 +200,11 @@ function Connect(props) {
     setLoading(false)
   }
 
-  const handleConnect = async () => {
+  const handleConnect = async (isChangeNetwork) => {
+    setLoading(true)
     checkInstallWhenCallAction()
     dispatch(clearActiveAccount())
     const wallet = localStorage.getItem('wallet') || value || 'MetamaskFlask'
-    if (!wallet) return
-    setLoading(true)
     if (wallet === 'Auro') {
       connectToAuro()
     } else {
@@ -203,46 +219,43 @@ function Connect(props) {
     }, 200)
   }, [])
 
-  const handleChangeWallet = (str) => {
-    setLoading(false)
+  const handleChangeWallet = async (str) => {
     localStorage.setItem('wallet', str)
-    dispatch(clearActiveAccount())
-    setTimeout(() => {
-      checkInstallWhenCallAction()
-    })
+    setLoading(false)
+    if (connected) {
+      if (str === 'Auro') {
+        connectToAuro()
+      } else {
+        connectToMetaMaskFlask()
+      }
+    } else {
+      dispatch(clearActiveAccount())
+      await checkInstallWhenCallAction()
+      dispatch(changeWalletBoforeConnect())
+    }
   }
 
   const handleChageNetWork = async (str) => {
-    setLoading(true)
+    setNetWorkState(str)
     const wallet = localStorage.getItem('wallet')
-    dispatch(clearActiveAccount())
-
     if (!wallet) return
-
     if (wallet === 'MetamaskFlask') {
-      await WALLET.MetamaskFlask.methods
-        .SwitchNetwork(str)
-        .then(async () => {
-          setNetWorkState(str)
-          const accountInfor =
-            await WALLET.MetamaskFlask.methods.getAccountInfors()
-          dispatch(login())
-          await dispatch(
-            setActiveAccount({
-              activeAccount: accountInfor.publicKey,
-              balance: ethers.utils.formatUnits(
-                accountInfor.balance.total,
-                'gwei'
-              ),
-              accountName: accountInfor.name,
-              inferredNonce: accountInfor.inferredNonce
-            })
-          )
-          setLoading(false)
-        })
-        .finally(() => {
-          setLoading(false)
-        })
+      await WALLET.MetamaskFlask.methods.SwitchNetwork(str).then(async () => {
+        const accountInfor =
+          await WALLET.MetamaskFlask.methods.getAccountInfors()
+        dispatch(login())
+        await dispatch(
+          setActiveAccount({
+            activeAccount: accountInfor.publicKey,
+            balance: ethers.utils.formatUnits(
+              accountInfor.balance.total,
+              'gwei'
+            ),
+            accountName: accountInfor.name,
+            inferredNonce: accountInfor.inferredNonce
+          })
+        )
+      })
     }
     if (wallet === 'Auro') {
       setNetWorkState(str)
@@ -312,8 +325,8 @@ function Connect(props) {
         ) : (
           <Space>
             <Button
-              disabled={loading}
-              onClick={handleConnect}
+              disabled={loading || connected}
+              onClick={() => handleConnect()}
               loading={loading}
               type='primary'
             >
@@ -336,12 +349,14 @@ function Connect(props) {
           Balance: <span className='text-danger'>{formatBalance(balance)}</span>{' '}
           Mina
         </Typography.Title>
-        <Button
-          className='pt-0'
-          icon={<ReloadOutlined />}
-          loading={loadingBalance}
-          onClick={handleReloadBalance}
-        />
+        {connected && (
+          <Button
+            className='pt-0'
+            icon={<ReloadOutlined />}
+            loading={loadingBalance}
+            onClick={handleReloadBalance}
+          />
+        )}
       </Space>
     </div>
   )

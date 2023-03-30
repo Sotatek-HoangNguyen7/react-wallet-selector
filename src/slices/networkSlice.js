@@ -1,28 +1,29 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice } from '@reduxjs/toolkit'
 
 const initialState = {
   items: [],
-  activeNetwork: 0,
-};
+  activeNetwork: 0
+}
 
 export const networkSlice = createSlice({
   name: 'network',
   initialState,
   reducers: {
     setNetworks: (state, action) => {
-      state.items = action.payload;
+      state.items = action.payload
     },
     setActiveNetwork: (state, action) => {
-      state.activeNetwork = action.payload;
+      state.activeNetwork = action.payload
     },
     resetNetwork: () => {
       return {
-        ...initialState,
-      };
-    },
-  },
-});
+        ...initialState
+      }
+    }
+  }
+})
 
-export const { setNetworks, setActiveNetwork, resetNetwork } = networkSlice.actions;
+export const { setNetworks, setActiveNetwork, resetNetwork } =
+  networkSlice.actions
 
-export default networkSlice.reducer;
+export default networkSlice.reducer

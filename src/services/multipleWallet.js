@@ -4,31 +4,21 @@ import {
   getTxHistoryQuery,
   TxPendingQuery,
   getAccountInfoQuery
-  // sendStakeDelegationGql,
-  // getTxDetailQuery,
-  // sendPaymentQuery,
-  // getTxStatusQuery,
 } from '../graphql/gqlparams'
 
 const { ethereum } = window
 const snapId = process.env.REACT_APP_SNAP_ID
   ? process.env.REACT_APP_SNAP_ID
   : 'npm:test-mina-snap'
-const snapVersion = process.env.REACT_APP_SNAP_VERSION
-  ? process.env.REACT_APP_SNAP_VERSION
-  : '*'
 
 export const WALLET = {
   MetamaskFlask: {
     methods: {
       connectToSnap: async () => {
         const latestSnapVersion = await getLatestSnapVersion()
-        const version =
-          snapVersion !== latestSnapVersion ? latestSnapVersion : snapVersion
-
         return await ethereum?.request({
           method: 'wallet_requestSnaps',
-          params: { [snapId]: { version: `^${version}` } }
+          params: { [snapId]: { version: `^${latestSnapVersion || '0.1.27'}` } }
         })
       },
 
@@ -153,6 +143,21 @@ export const WALLET = {
             }
           }
         })
+      },
+
+      SendTransactionZkApp: async (payload) => {
+        // return await ethereum?.request({
+        //   method: 'wallet_invokeSnap',
+        //   params: {
+        //     snapId: snapId,
+        //     request: {
+        //       method: 'mina_sendPaymentZkapp',
+        //       params: {
+        //         ...payload
+        //       }
+        //     }
+        //   }
+        // })
       },
 
       getTxHistory: async () => {
@@ -282,6 +287,16 @@ export const WALLET = {
           to: payload.receiveAddress,
           fee: payload.sendFee,
           memo: payload.sendMemo
+        })
+      },
+
+      SendTransactionZkApp: async (payload) => {
+        return await window.mina?.sendTransaction({
+          transaction: payload.zkBody,
+          feePayer: {
+            memo: payload.signPartyMemo,
+            fee: payload.signPartyFee
+          }
         })
       },
 
