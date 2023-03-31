@@ -200,7 +200,7 @@ function Connect(props) {
     setLoading(false)
   }
 
-  const handleConnect = async (isChangeNetwork) => {
+  const handleConnect = async () => {
     setLoading(true)
     checkInstallWhenCallAction()
     dispatch(clearActiveAccount())
@@ -215,7 +215,13 @@ function Connect(props) {
   useEffect(() => {
     if (!localStorage.getItem('wallet')) return
     setTimeout(() => {
-      handleConnect()
+      checkInstallWhenCallAction()
+      const wallet = localStorage.getItem('wallet')
+      if (wallet === 'Auro') {
+        connectToAuro()
+      } else {
+        connectToMetaMaskFlask()
+      }
     }, 200)
   }, [])
 

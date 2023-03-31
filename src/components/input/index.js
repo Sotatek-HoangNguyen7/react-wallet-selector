@@ -11,10 +11,10 @@ const formatNumber = (price, defaultValue) => {
   return defaultValue || price
 }
 
-class InputInline extends PureComponent {
+class InputPrice extends PureComponent {
   constructor(props) {
     super(props)
-    const { defaultValue, value, fixed } = props
+    const { defaultValue, value, fixed = 4 } = props
     const values = (value?.toString() || defaultValue?.toString() || '')
       .toString()
       .split('.')
@@ -31,29 +31,25 @@ class InputInline extends PureComponent {
   }
 
   UNSAFE_componentWillReceiveProps(nProps) {
-    const { value, type, fixed } = nProps
-    const { valueFirst, valueLast, value: valueState } = this.state
-    if (type === 'number') {
-      if (
-        value?.toString() !== `${valueFirst}${valueLast ? `.${valueLast}` : ''}`
-      ) {
-        const values = value?.toString().split('.') || []
-        let valueLast = values[1]
-        if ((fixed || fixed === 0) && valueLast) {
-          valueLast = values[1].substring(0, fixed)
-        }
-        this.setState({
-          valueFirst: values?.[0] || '',
-          valueLast: valueLast ? `.${valueLast}` : ''
-        })
+    const { value, fixed = 4 } = nProps
+    const { valueFirst, valueLast } = this.state
+    if (
+      value?.toString() !== `${valueFirst}${valueLast ? `.${valueLast}` : ''}`
+    ) {
+      const values = value?.toString().split('.') || []
+      let valueLast = values[1]
+      if ((fixed || fixed === 0) && valueLast) {
+        valueLast = values[1].substring(0, fixed)
       }
-    } else if (value?.toString() !== valueState?.toString()) {
-      this.setState({ value })
+      this.setState({
+        valueFirst: values?.[0] || '',
+        valueLast: valueLast ? `.${valueLast}` : ''
+      })
     }
   }
 
   handleChange = (e) => {
-    const { onChange, type, min, max, fixed = 4 } = this.props
+    const { onChange, min, max, fixed = 4 } = this.props
     let value = e.target.value || ''
     if (value === '.') {
       value = '0.'
@@ -61,49 +57,29 @@ class InputInline extends PureComponent {
     if (value === '-.') {
       value = '-0.'
     }
-    if (type === 'number') {
-      value = value.replace(/[^0-9-.]/g, '').replace(/,/g, '')
-      // tính toán số âm
-      if (value.includes('-')) {
-        if (value.replace(/[0-9.]/g, '').length % 2 === 0) {
-          value = value.replace(/-/g, '')
-        } else {
-          value = `-${value.replace(/-/g, '')}`
-        }
-      }
-      if ((min || min === 0) && Number(value || 0) < min) {
-        return
-      }
-      if ((max || max === 0) && Number(value || 0) > max) {
-        value = max.toString()
-      }
-      if (min && min >= 0) {
-        value = value.replace(/-/g, '')
-      }
-      const values = value.split('.')
-      const dot = value.includes('.') ? '.' : ''
-      if (type === 'number') {
-        if (
-          (value.includes('.') && value.split('.')[1]) ||
-          !value.includes('.')
-        ) {
-          onChange?.(value)
-        }
-      } else {
-        onChange?.(value)
-      }
-      let valueLast = values[1]
-      if ((fixed || fixed === 0) && valueLast) {
-        valueLast = values[1].substring(0, fixed)
-      }
-      this.setState({
-        valueFirst: values[0],
-        valueLast: dot + (valueLast || '')
-      })
-    } else {
-      onChange?.(e.target.value)
-      this.setState({ value: e.target.value })
+    value = value.replace(/[^0-9.]/g, '').replace(/,/g, '')
+    if ((min || min === 0) && Number(value || 0) < min) {
+      return
     }
+    if ((max || max === 0) && Number(value || 0) > max) {
+      value = max.toString()
+    }
+    if (min && min >= 0) {
+      value = value.replace(/-/g, '')
+    }
+    const values = value.split('.')
+    const dot = value.includes('.') ? '.' : ''
+    if ((value.includes('.') && value.split('.')[1]) || !value.includes('.')) {
+      onChange?.(value)
+    }
+    let valueLast = values[1]
+    if ((fixed || fixed === 0) && valueLast) {
+      valueLast = values[1].substring(0, fixed)
+    }
+    this.setState({
+      valueFirst: values[0],
+      valueLast: dot + (valueLast || '')
+    })
   }
 
   onKeyDown = (e) => {
@@ -120,7 +96,7 @@ class InputInline extends PureComponent {
 
   render() {
     const { placeholder, type, disabled, style, className, ...p } = this.props
-    const { valueFirst = '', valueLast = '', value = '' } = this.state
+    const { valueFirst = '', valueLast = '' } = this.state
 
     return (
       <Input
@@ -129,11 +105,7 @@ class InputInline extends PureComponent {
         className={className}
         disabled={!!disabled}
         onChange={this.handleChange}
-        value={
-          type === 'number'
-            ? formatNumber(valueFirst) + valueLast.toString()
-            : value
-        }
+        value={formatNumber(valueFirst) + valueLast.toString()}
         placeholder={placeholder}
         onKeyDown={this.onKeyDown}
         autoComplete='off'
@@ -142,12 +114,10 @@ class InputInline extends PureComponent {
   }
 }
 
-InputInline.PropsType = {
+InputPrice.PropsType = {
   unit: PropsType.string,
-  typeInput: PropsType.string,
   onChange: PropsType.func,
-  onBlur: PropsType.func,
-  parseValue: PropsType.string || PropsType.func
+  onBlur: PropsType.func
 }
 
-export default InputInline
+export default InputPrice

@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { Form, Button, Card, Input, Collapse, Radio } from 'antd'
 import { blockInvalidChar } from '../../utils/utils'
+import InputPrice from '../input'
 import { CaretUpOutlined } from '@ant-design/icons'
 import { WALLET } from '../../services/multipleWallet'
 import { useAppSelector } from '../../hooks/redux'
@@ -85,10 +86,9 @@ const Send = () => {
   }
 
   const handleClickMax = () => {
+    form.resetFields('sendAmount')
     form.setFieldValue('sendAmount', balance)
   }
-
-  const handleOnChangeBalance = (event) => {}
 
   const handleChangeFee = ({ target: { value } }) => {
     setPlaceholder(value)
@@ -118,10 +118,17 @@ const Send = () => {
           label='To'
           name='receiveAddress'
           rules={[
-            {
-              required: true,
-              message: 'Please input Address!'
-            }
+            () => ({
+              validator(_, value) {
+                if (!value) {
+                  return Promise.reject(new Error('Please input To!'))
+                }
+                if (Number(value) > Number(balance)) {
+                  return Promise.reject(new Error('Insufficient balance!'))
+                }
+                return Promise.resolve()
+              }
+            })
           ]}
         >
           <Input placeholder='Address' />
@@ -136,11 +143,15 @@ const Send = () => {
             }
           ]}
         >
-          <Input
+          <InputPrice
+            max={999999999999999}
             placeholder='0'
             onKeyDown={blockInvalidChar}
-            pattern='^\$\d{1,3}(,\d{3})*(\.\d+)?$'
-            suffix={<span onClick={handleClickMax}>Max</span>}
+            suffix={
+              <span style={{ cursor: 'pointer' }} onClick={handleClickMax}>
+                Max
+              </span>
+            }
           />
         </Form.Item>
         <Form.Item
@@ -194,10 +205,12 @@ const Send = () => {
               }
             ]}
           >
-            <Input
+            <InputPrice
               placeholder={placeholder}
               onKeyDown={blockInvalidChar}
               onChange={handleChangeFeeInput}
+              min={0.0011}
+              max={10}
             />
           </Form.Item>
         </div>
