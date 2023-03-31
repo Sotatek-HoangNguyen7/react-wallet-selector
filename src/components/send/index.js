@@ -2,7 +2,7 @@
 /* eslint-disable no-undef */
 import React, { useState, useEffect } from 'react'
 import { Form, Button, Card, Input, Collapse, Radio } from 'antd'
-import { blockInvalidChar } from '../../utils/utils'
+import { blockInvalidChar, addressValid } from '../../utils/utils'
 import InputPrice from '../input'
 import { CaretUpOutlined } from '@ant-design/icons'
 import { WALLET } from '../../services/multipleWallet'
@@ -15,6 +15,7 @@ const Send = () => {
   const [loading, setLoading] = useState(false)
   const [open, setOpen] = useState(false)
   const [sendMessageResult, setSendMessageResult] = useState('')
+  const [warning, setWarning] = useState('')
   const [placeholder, setPlaceholder] = useState('0.0101')
   const [, forceUpdate] = useState({})
 
@@ -85,11 +86,6 @@ const Send = () => {
     setOpen(!open)
   }
 
-  const handleClickMax = () => {
-    form.resetFields('sendAmount')
-    form.setFieldValue('sendAmount', balance)
-  }
-
   const handleChangeFee = ({ target: { value } }) => {
     setPlaceholder(value)
   }
@@ -123,8 +119,8 @@ const Send = () => {
                 if (!value) {
                   return Promise.reject(new Error('Please input To!'))
                 }
-                if (Number(value) > Number(balance)) {
-                  return Promise.reject(new Error('Insufficient balance!'))
+                if (addressValid(value)) {
+                  return Promise.reject(new Error('Invalid address format!'))
                 }
                 return Promise.resolve()
               }
@@ -137,22 +133,20 @@ const Send = () => {
           label='Amount'
           name='sendAmount'
           rules={[
-            {
-              required: true,
-              message: 'Please input Amount!'
-            }
+            () => ({
+              validator(_, value) {
+                if (!value) {
+                  return Promise.reject(new Error('Please input Amount!'))
+                }
+                if (Number(value) > Number(balance)) {
+                  return Promise.reject(new Error('Insufficient balance!'))
+                }
+                return Promise.resolve()
+              }
+            })
           ]}
         >
-          <InputPrice
-            max={999999999999999}
-            placeholder='0'
-            onKeyDown={blockInvalidChar}
-            suffix={
-              <span style={{ cursor: 'pointer' }} onClick={handleClickMax}>
-                Max
-              </span>
-            }
-          />
+          <InputPrice placeholder='0' onKeyDown={blockInvalidChar} />
         </Form.Item>
         <Form.Item
           label='Memo (Optional)'
@@ -198,19 +192,37 @@ const Send = () => {
           <Form.Item
             label='Transaction Fee'
             name='sendFee2'
+            validateStatus={warning ? 'warning' : ''}
+            help={warning || ''}
             rules={[
-              {
-                required: false,
-                message: 'Please input Nonce!'
-              }
+              () => ({
+                validator(_, value) {
+                  if (!value) {
+                    setWarning('')
+                    return Promise.resolve()
+                  }
+                  if (Number(value) < 0.0101) {
+                    setWarning('')
+                    return Promise.reject(
+                      new Error(
+                        `Invalid user command. Fee ${value} is less than the minimum fee of 0.0101`
+                      )
+                    )
+                  }
+                  if (Number(value) > 10) {
+                    setWarning('Fees are much higher than average')
+                    return Promise.resolve()
+                  }
+                  setWarning('')
+                  return Promise.resolve()
+                }
+              })
             ]}
           >
             <InputPrice
               placeholder={placeholder}
               onKeyDown={blockInvalidChar}
               onChange={handleChangeFeeInput}
-              min={0.0011}
-              max={10}
             />
           </Form.Item>
         </div>

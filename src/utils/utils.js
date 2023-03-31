@@ -13,6 +13,15 @@ export const decodeMemo = (encode) => {
   }
 }
 
+export const addressValid = (address = '') => {
+  try {
+    const decodedAddress = bs58check.decode(address).toString()
+    return !!decodedAddress && address.length === 55
+  } catch (ex) {
+    return false
+  }
+}
+
 export const reverse = (bytes) => {
   const reversed = Buffer.alloc(bytes.length)
   for (let i = bytes.length; i > 0; i--) {
