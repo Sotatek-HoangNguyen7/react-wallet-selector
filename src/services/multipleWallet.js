@@ -245,7 +245,7 @@ export const WALLET = {
   Auro: {
     methods: {
       connectToAuro: async () => {
-        return await window.mina?.requestAccounts()
+        return await window?.mina?.requestAccounts()
       },
 
       getAccountInfors: async (publicKey = '', urlProxy) => {
@@ -282,7 +282,7 @@ export const WALLET = {
       ExportPrivateKey: async () => {},
 
       SendTransaction: async (payload) => {
-        return await window.mina?.sendLegacyPayment({
+        return await window?.mina?.sendLegacyPayment({
           amount: payload.sendAmount,
           to: payload.receiveAddress,
           fee: payload.sendFee,
@@ -291,7 +291,7 @@ export const WALLET = {
       },
 
       SendTransactionZkApp: async (payload) => {
-        return await window.mina?.sendTransaction({
+        return await window?.mina?.sendTransaction({
           transaction: payload.zkBody,
           feePayer: {
             memo: payload.signPartyMemo,
@@ -301,7 +301,7 @@ export const WALLET = {
       },
 
       Stake: async (payload) => {
-        return await window.mina?.sendLegacyStakeDelegation({
+        return await window?.mina?.sendLegacyStakeDelegation({
           to: payload.vaildatorAddressInput,
           fee: payload.stakeFeeInput,
           memo: payload.stakeMemoInput
@@ -334,7 +334,7 @@ export const WALLET = {
       },
 
       Signature: async (payload) => {
-        return await window.mina?.signMessage({
+        return await window?.mina?.signMessage({
           message: payload
         })
       },

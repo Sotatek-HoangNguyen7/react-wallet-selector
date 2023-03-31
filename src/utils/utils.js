@@ -165,9 +165,9 @@ export const openLinkInstallFlask = (wallet) => {
   const MetamaskFlaskLink =
     'https://chrome.google.com/webstore/detail/metamask-flask-developmen/ljfoeinjpaedjfecbmggjgodbgkmjkjk'
   if (wallet === 'Auro') {
-    window.open(auroLink, '_blank')?.focus()
+    window?.open(auroLink, '_blank')?.focus()
   } else {
-    window.open(MetamaskFlaskLink, '_blank')?.focus()
+    window?.open(MetamaskFlaskLink, '_blank')?.focus()
   }
 }
 

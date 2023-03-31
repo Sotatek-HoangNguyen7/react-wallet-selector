@@ -38,11 +38,11 @@ function Connect(props) {
   const checkLogOut = async () => {
     if (localStorage.getItem('wallet') === 'MetamaskFlask') {
       const getIsUnlocked = async () =>
-        await window.ethereum._metamask.isUnlocked()
+        await window?.ethereum._metamask.isUnlocked()
       const isUnlocked = await getIsUnlocked()
       if (!isUnlocked) dispatch(changeWalletBoforeConnect())
     }
-    if (window.mina && localStorage.getItem('wallet') === 'Auro') {
+    if (window?.mina && localStorage.getItem('wallet') === 'Auro') {
       dispatch(changeWalletBoforeConnect())
       const result = await WALLET.Auro.methods
         .connectToAuro()
@@ -65,7 +65,7 @@ function Connect(props) {
   useEffect(() => {
     if (!localStorage.getItem('wallet')) return
     if (localStorage.getItem('wallet') === 'Auro') {
-      window.mina?.on('chainChanged', async (network) => {
+      window?.mina?.on('chainChanged', async (network) => {
         const result = await WALLET.Auro.methods.connectToAuro()
         setNetWorkState(network)
         if (result.message) {
@@ -99,7 +99,7 @@ function Connect(props) {
   useEffect(() => {
     if (!localStorage.getItem('wallet')) return
     if (localStorage.getItem('wallet') === 'Auro') {
-      window.mina?.on('accountsChanged', async (accounts) => {
+      window?.mina?.on('accountsChanged', async (accounts) => {
         setLoading(false)
         const { account: accountInfor } =
           await WALLET.Auro.methods.getAccountInfors(
@@ -120,7 +120,7 @@ function Connect(props) {
         )
       })
     } else {
-      window.ethereum?.on('accountsChanged', async (accounts) => {
+      window?.ethereum?.on('accountsChanged', async (accounts) => {
         console.log(accounts)
       })
     }
@@ -128,8 +128,8 @@ function Connect(props) {
 
   const checkInstallWhenCallAction = async () => {
     if (localStorage.getItem('wallet') === 'Auro') {
-      if (window.mina) dispatch(setWalletInstalled(true))
-      if (!window.mina) dispatch(setWalletInstalled(false))
+      if (window?.mina) dispatch(setWalletInstalled(true))
+      if (!window?.mina) dispatch(setWalletInstalled(false))
     } else {
       try {
         const provider = await detectEthereumProvider({
@@ -154,7 +154,7 @@ function Connect(props) {
       console.log('connectToAuro', connectToAuro)
       setLoading(false)
     })
-    const network = await window.mina?.requestNetwork().catch((err) => {
+    const network = await window?.mina?.requestNetwork().catch((err) => {
       console.log('requestNetwork', connectToAuro)
       setLoading(false)
     })

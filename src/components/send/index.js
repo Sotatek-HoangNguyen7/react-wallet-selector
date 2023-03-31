@@ -202,7 +202,6 @@ const Send = () => {
                     return Promise.resolve()
                   }
                   if (Number(value) < 0.0101) {
-                    setWarning('')
                     return Promise.reject(
                       new Error(
                         `Invalid user command. Fee ${value} is less than the minimum fee of 0.0101`

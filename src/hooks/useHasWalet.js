@@ -30,7 +30,7 @@ export const useHasWalet = (callback) => {
         firstTimeRun.current = true
       }
     } else {
-      if (window.mina) {
+      if (window?.mina) {
         callback()
         return dispatch(setWalletInstalled(true))
       }
