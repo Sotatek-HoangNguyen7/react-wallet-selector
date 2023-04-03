@@ -130,7 +130,6 @@ export const WALLET = {
       },
 
       SendTransaction: async (payload) => {
-        console.log(payload)
         return await window?.ethereum?.request({
           method: 'wallet_invokeSnap',
           params: {

@@ -1,7 +1,7 @@
 /* eslint-disable camelcase */
 /* eslint-disable no-unused-expressions */
 import axios from 'axios'
-import bs58check from 'bs58check'
+const bs58check = require('bs58check')
 
 export const decodeMemo = (encode) => {
   try {
@@ -13,14 +13,7 @@ export const decodeMemo = (encode) => {
   }
 }
 
-export const addressValid = (address = '') => {
-  try {
-    const decodedAddress = bs58check.decode(address).toString()
-    return !!decodedAddress && address.length === 55
-  } catch (ex) {
-    return false
-  }
-}
+export const isBase58 = (value) => /^[A-HJ-NP-Za-km-z1-9]*$/.test(value)
 
 export const reverse = (bytes) => {
   const reversed = Buffer.alloc(bytes.length)

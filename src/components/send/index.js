@@ -2,7 +2,7 @@
 /* eslint-disable no-undef */
 import React, { useState, useEffect } from 'react'
 import { Form, Button, Card, Input, Collapse, Radio } from 'antd'
-import { blockInvalidChar, addressValid } from '../../utils/utils'
+import { blockInvalidChar, isBase58 } from '../../utils/utils'
 import InputPrice from '../input'
 import { CaretUpOutlined } from '@ant-design/icons'
 import { WALLET } from '../../services/multipleWallet'
@@ -130,7 +130,7 @@ const Send = () => {
                 if (!value) {
                   return Promise.reject(new Error('Please input To!'))
                 }
-                if (addressValid(value)) {
+                if (!isBase58(value) || !(value.length === 55)) {
                   return Promise.reject(new Error('Invalid address format!'))
                 }
                 return Promise.resolve()
