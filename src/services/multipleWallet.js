@@ -6,7 +6,6 @@ import {
   getAccountInfoQuery
 } from '../graphql/gqlparams'
 
-const { ethereum } = window
 const snapId = process.env.REACT_APP_SNAP_ID
   ? process.env.REACT_APP_SNAP_ID
   : 'npm:test-mina-snap'
@@ -16,18 +15,18 @@ export const WALLET = {
     methods: {
       connectToSnap: async () => {
         const latestSnapVersion = await getLatestSnapVersion()
-        return await ethereum?.request({
+        return await window?.ethereum?.request({
           method: 'wallet_requestSnaps',
           params: { [snapId]: { version: `^${latestSnapVersion || '0.1.27'}` } }
         })
       },
 
       getSnap: async () => {
-        await ethereum?.request({ method: 'wallet_getSnaps' })
+        await window?.ethereum?.request({ method: 'wallet_getSnaps' })
       },
 
       getAccountInfors: async () => {
-        return await ethereum?.request({
+        return await window?.ethereum?.request({
           method: 'wallet_invokeSnap',
           params: {
             snapId: snapId,
@@ -39,7 +38,7 @@ export const WALLET = {
       },
 
       CreateAccount: async (name) => {
-        return await ethereum?.request({
+        return await window?.ethereum?.request({
           method: 'wallet_invokeSnap',
           params: {
             snapId: snapId,
@@ -54,7 +53,7 @@ export const WALLET = {
       },
 
       ChangeAccount: async (payload) => {
-        return await ethereum?.request({
+        return await window?.ethereum?.request({
           method: 'wallet_invokeSnap',
           params: {
             snapId: snapId,
@@ -70,7 +69,7 @@ export const WALLET = {
       },
 
       AccountList: async () => {
-        return await ethereum?.request({
+        return await window?.ethereum?.request({
           method: 'wallet_invokeSnap',
           params: {
             snapId: snapId,
@@ -82,7 +81,7 @@ export const WALLET = {
       },
 
       ImportAccount: async (payload) => {
-        return await ethereum?.request({
+        return await window?.ethereum?.request({
           method: 'wallet_invokeSnap',
           params: {
             snapId: snapId,
@@ -98,7 +97,7 @@ export const WALLET = {
       },
 
       EditAccountName: async (payload) => {
-        return await ethereum?.request({
+        return await window?.ethereum?.request({
           method: 'wallet_invokeSnap',
           params: {
             snapId: snapId,
@@ -115,7 +114,7 @@ export const WALLET = {
       },
 
       ExportPrivateKey: async (payload) => {
-        return await ethereum?.request({
+        return await window?.ethereum?.request({
           method: 'wallet_invokeSnap',
           params: {
             snapId: snapId,
@@ -131,7 +130,8 @@ export const WALLET = {
       },
 
       SendTransaction: async (payload) => {
-        return await ethereum?.request({
+        console.log(payload)
+        return await window?.ethereum?.request({
           method: 'wallet_invokeSnap',
           params: {
             snapId: snapId,
@@ -146,7 +146,7 @@ export const WALLET = {
       },
 
       SendTransactionZkApp: async (payload) => {
-        // return await ethereum?.request({
+        // return await window?.ethereum?.request({
         //   method: 'wallet_invokeSnap',
         //   params: {
         //     snapId: snapId,
@@ -161,7 +161,7 @@ export const WALLET = {
       },
 
       getTxHistory: async () => {
-        return await ethereum?.request({
+        return await window?.ethereum?.request({
           method: 'wallet_invokeSnap',
           params: {
             snapId: snapId,
@@ -178,7 +178,7 @@ export const WALLET = {
       },
 
       Signature: async (payload) => {
-        return await ethereum?.request({
+        return await window?.ethereum?.request({
           method: 'wallet_invokeSnap',
           params: {
             snapId: snapId,
@@ -193,7 +193,7 @@ export const WALLET = {
       },
 
       SwitchNetwork: async (payload) => {
-        return await ethereum?.request({
+        return await window?.ethereum?.request({
           method: 'wallet_invokeSnap',
           params: {
             snapId: snapId,
@@ -208,7 +208,7 @@ export const WALLET = {
       },
 
       RequestNetwork: async () => {
-        return await ethereum?.request({
+        return await window?.ethereum?.request({
           method: 'wallet_invokeSnap',
           params: {
             snapId: snapId,
@@ -220,7 +220,7 @@ export const WALLET = {
       },
 
       RequestSnap: async () => {
-        return await ethereum?.request({
+        return await window?.ethereum?.request({
           method: 'wallet_requestSnaps',
           params: {
             'npm:test-mina-snap': {}
@@ -229,7 +229,7 @@ export const WALLET = {
       },
 
       GetNetworkConfigSnap: async () => {
-        return await ethereum?.request({
+        return await window?.ethereum?.request({
           method: 'wallet_invokeSnap',
           params: {
             snapId: snapId,

@@ -7,6 +7,8 @@ import InputPrice from '../input'
 import { CaretUpOutlined } from '@ant-design/icons'
 import { WALLET } from '../../services/multipleWallet'
 import { useAppSelector } from '../../hooks/redux'
+import '../../../node_modules/bootstrap/dist/css/bootstrap.min.css'
+import '../../../src/styles.css'
 
 const { Panel } = Collapse
 
@@ -45,7 +47,13 @@ const Send = () => {
           .catch((err) => err)
         if (result.hash) {
           setLoading(false)
-          setSendMessageResult(result.hash)
+          const newResult = {
+            id: '',
+            hash: result.hash,
+            isDelegation: false,
+            kind: ''
+          }
+          setSendMessageResult(JSON.stringify(newResult))
         } else {
           setLoading(false)
           setSendMessageResult(result.message)
@@ -91,8 +99,11 @@ const Send = () => {
   }
 
   const handleChangeFeeInput = (value) => {
-    if (value === '0.0011' || value === '0.0101' || value === '0.201')
+    if (value === '0.0011' || value === '0.0101' || value === '0.201') {
       form.setFieldValue('sendFee', value)
+    } else {
+      form.setFieldValue('sendFee', '')
+    }
   }
 
   const options = [
@@ -192,16 +203,21 @@ const Send = () => {
           <Form.Item
             label='Transaction Fee'
             name='sendFee2'
-            validateStatus={warning ? 'warning' : ''}
-            help={warning || ''}
+            help={
+              warning ? (
+                <span style={{ color: '#faad14' }}>
+                  Fees are much higher than average
+                </span>
+              ) : null
+            }
             rules={[
               () => ({
                 validator(_, value) {
+                  setWarning(false)
                   if (!value) {
-                    setWarning('')
                     return Promise.resolve()
                   }
-                  if (Number(value) < 0.0101) {
+                  if (Number(value) < 0.0011) {
                     return Promise.reject(
                       new Error(
                         `Invalid user command. Fee ${value} is less than the minimum fee of 0.0101`
@@ -209,10 +225,9 @@ const Send = () => {
                     )
                   }
                   if (Number(value) > 10) {
-                    setWarning('Fees are much higher than average')
+                    setWarning(true)
                     return Promise.resolve()
                   }
-                  setWarning('')
                   return Promise.resolve()
                 }
               })

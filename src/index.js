@@ -4,9 +4,8 @@ import Send from './components/send'
 import Sign from './components/sign'
 import SendZkapp from './components/send-zkapp'
 import AppProvider from './provider'
-import '../node_modules/bootstrap/dist/css/bootstrap.min.css'
 
-export const SelectWalet = ({ children, data }) => {
+export const SelectWallet = ({ children, data }) => {
   return (
     <AppProvider>
       <Connect data={data} />
@@ -14,7 +13,7 @@ export const SelectWalet = ({ children, data }) => {
   )
 }
 
-export const SendWalet = ({ children, data }) => {
+export const SendWallet = ({ children, data }) => {
   return (
     <AppProvider>
       <Send data={data} />
@@ -22,7 +21,7 @@ export const SendWalet = ({ children, data }) => {
   )
 }
 
-export const SignWalet = ({ children, data }) => {
+export const SignWallet = ({ children, data }) => {
   return (
     <AppProvider>
       <Sign data={data} />

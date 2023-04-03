@@ -5,6 +5,8 @@ import { Form, Button, Card, Input, Select, Collapse } from 'antd'
 import { WALLET } from '../../services/multipleWallet'
 import { useAppSelector } from '../../hooks/redux'
 import { getZkbody } from '../../services/zkapp'
+import '../../../node_modules/bootstrap/dist/css/bootstrap.min.css'
+import '../../../src/styles.css'
 
 const { Panel } = Collapse
 

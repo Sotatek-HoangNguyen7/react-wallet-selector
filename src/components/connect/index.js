@@ -24,6 +24,8 @@ import {
 } from '../../slices/walletSlice'
 import { useHasWalet } from '../../hooks/useHasWalet'
 import detectEthereumProvider from '@metamask/detect-provider'
+import '../../../node_modules/bootstrap/dist/css/bootstrap.min.css'
+import '../../../src/styles.css'
 
 const ethers = require('ethers')
 
@@ -40,10 +42,14 @@ function Connect(props) {
       const getIsUnlocked = async () =>
         await window?.ethereum._metamask.isUnlocked()
       const isUnlocked = await getIsUnlocked()
-      if (!isUnlocked) dispatch(changeWalletBoforeConnect())
+      if (!isUnlocked) {
+        dispatch(changeWalletBoforeConnect())
+        dispatch(clearActiveAccount())
+      }
     }
     if (window?.mina && localStorage.getItem('wallet') === 'Auro') {
       dispatch(changeWalletBoforeConnect())
+      dispatch(clearActiveAccount())
       const result = await WALLET.Auro.methods
         .connectToAuro()
         .catch((err) => err)
@@ -287,32 +293,34 @@ function Connect(props) {
   return (
     <div>
       <Space direction='vertical'>
-        <Segmented
-          defaultValue={localStorage.getItem('wallet') || 'MetamaskFlask'}
-          onChange={handleChangeWallet}
-          options={[
-            {
-              label: (
-                <div style={{ padding: 4 }}>
-                  <Avatar
-                    shape='square'
-                    size={80}
-                    src={iconWallet.MetamaskFlask}
-                  />
-                </div>
-              ),
-              value: 'MetamaskFlask'
-            },
-            {
-              label: (
-                <div style={{ padding: 4 }}>
-                  <Avatar shape='square' size={100} src={iconWallet.Auro} />
-                </div>
-              ),
-              value: 'Auro'
-            }
-          ]}
-        />
+        <div className='chose-wallet'>
+          <Segmented
+            defaultValue={localStorage.getItem('wallet') || 'MetamaskFlask'}
+            onChange={handleChangeWallet}
+            options={[
+              {
+                label: (
+                  <div style={{ padding: 4 }}>
+                    <Avatar
+                      shape='square'
+                      size={80}
+                      src={iconWallet.MetamaskFlask}
+                    />
+                  </div>
+                ),
+                value: 'MetamaskFlask'
+              },
+              {
+                label: (
+                  <div style={{ padding: 4 }}>
+                    <Avatar shape='square' size={80} src={iconWallet.Auro} />
+                  </div>
+                ),
+                value: 'Auro'
+              }
+            ]}
+          />
+        </div>
         <Segmented
           disabled={localStorage.getItem('wallet') === 'Auro'}
           value={value}

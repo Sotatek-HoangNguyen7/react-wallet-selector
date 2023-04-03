@@ -4,6 +4,20 @@ import React, { useState, useEffect } from 'react'
 import { Form, Button, Card, Input } from 'antd'
 import { WALLET } from '../../services/multipleWallet'
 import { useAppSelector } from '../../hooks/redux'
+import '../../../node_modules/bootstrap/dist/css/bootstrap.min.css'
+import '../../../src/styles.css'
+
+const signature = {
+  signature: {
+    field: '',
+    scalar: '',
+    signer: ''
+  },
+  data: {
+    publicKey: '',
+    message: ''
+  }
+}
 
 const Sign = () => {
   const [form] = Form.useForm()
@@ -11,11 +25,9 @@ const Sign = () => {
   const [sendMessageResult, setSendMessageResult] = useState('')
   const [, forceUpdate] = useState({})
 
-  const { isInstalledWallet, connected } = useAppSelector(
+  const { isInstalledWallet, connected, activeAccount } = useAppSelector(
     (state) => state.wallet
   )
-
-  console.log('connected', connected)
 
   useEffect(() => {
     forceUpdate({})
@@ -39,7 +51,18 @@ const Sign = () => {
           .catch((err) => err)
         if (result.signature) {
           setLoading(false)
-          setSendMessageResult(JSON.stringify(result.signature))
+          const newResult = {
+            signature: {
+              field: result.signature?.field,
+              scalar: result.signature?.scalar,
+              signer: activeAccount
+            },
+            data: {
+              publicKey: activeAccount,
+              message: values?.signMessageContent
+            }
+          }
+          setSendMessageResult(JSON.stringify(newResult))
         } else {
           setLoading(false)
           setSendMessageResult(result.message)
@@ -101,7 +124,7 @@ const Sign = () => {
                   .length
               }
             >
-              Send
+              Sign
             </Button>
           )}
         </Form.Item>
