@@ -281,12 +281,7 @@ export const WALLET = {
       ExportPrivateKey: async () => {},
 
       SendTransaction: async (payload) => {
-        return await window?.mina?.sendLegacyPayment({
-          amount: payload.sendAmount,
-          to: payload.receiveAddress,
-          fee: payload.sendFee,
-          memo: payload.sendMemo
-        })
+        return await window?.mina?.sendLegacyPayment(payload)
       },
 
       SendTransactionZkApp: async (payload) => {

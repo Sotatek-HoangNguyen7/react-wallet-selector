@@ -43,7 +43,12 @@ const Send = () => {
       setLoading(true)
       if (wallet === 'Auro') {
         const result = await WALLET.Auro.methods
-          .SendTransaction(values)
+          .SendTransaction({
+            amount: payload.sendAmount,
+            to: payload.receiveAddress,
+            fee: values.sendFee2 ? values.sendFee2 : values.sendFee,
+            memo: payload.sendMemo
+          })
           .catch((err) => err)
         if (result.hash) {
           setLoading(false)

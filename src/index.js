@@ -28,6 +28,7 @@ export const SignWallet = ({ children, data }) => {
     </AppProvider>
   )
 }
+
 export const SendtTransactionZkapp = ({ children, data }) => {
   return (
     <AppProvider>

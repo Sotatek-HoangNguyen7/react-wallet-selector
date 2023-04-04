@@ -1,7 +1,9 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-undef */
 import React, { useState, useEffect } from 'react'
-import { Form, Button, Card, Input, Select, Collapse } from 'antd'
+import { Form, Button, Card, Input, Radio, Collapse } from 'antd'
+import { CaretUpOutlined } from '@ant-design/icons'
+import InputPrice from '../input'
 import { WALLET } from '../../services/multipleWallet'
 import { useAppSelector } from '../../hooks/redux'
 import { getZkbody } from '../../services/zkapp'
@@ -15,6 +17,8 @@ const SendZkapp = () => {
   const [loading, setLoading] = useState(false)
   const [open, setOpen] = useState(false)
   const [sendMessageResult, setSendMessageResult] = useState('')
+  const [warning, setWarning] = useState('')
+  const [placeholder, setPlaceholder] = useState('0.0101')
   const [, forceUpdate] = useState({})
 
   const { isInstalledWallet, connected } = useAppSelector(
@@ -45,13 +49,19 @@ const SendZkapp = () => {
             transaction: zkBody,
             feePayer: {
               memo: values.signPartyMemo || '',
-              fee: values.signPartyFee || ''
+              fee: values.sendFee2 ? values.sendFee2 : values.sendFee
             }
           })
           .catch((err) => err)
         if (result.hash) {
           setLoading(false)
-          setSendMessageResult(result.hash)
+          const newResult = {
+            id: 'N/A',
+            hash: result.hash,
+            isDelegation: false,
+            kind: 'N/A'
+          }
+          setSendMessageResult(rJSON.stringify(newResult))
         } else {
           setLoading(false)
           setSendMessageResult(result.message)
@@ -84,12 +94,30 @@ const SendZkapp = () => {
     } catch (errorInfo) {}
   }
 
-  const handleChangeCollapse = (key) => {
+  const handleChangeCollapse = () => {
     setOpen(!open)
   }
 
+  const handleChangeFee = ({ target: { value } }) => {
+    setPlaceholder(value)
+  }
+
+  const handleChangeFeeInput = (value) => {
+    if (value === '0.0011' || value === '0.0101' || value === '0.201') {
+      form.setFieldValue('sendFee', value)
+    } else {
+      form.setFieldValue('sendFee', '')
+    }
+  }
+
+  const options = [
+    { label: 'Slow', value: '0.0011' },
+    { label: 'Default', value: '0.0101' },
+    { label: 'Fast', value: '0.201' }
+  ]
+
   return (
-    <Card title='Send' type='inner'>
+    <Card title='Mina Party' type='inner'>
       <Form form={form} autoComplete='off' {...layout} onFinish={sendButton}>
         <Form.Item
           label='GraphQL url'
@@ -116,23 +144,6 @@ const SendZkapp = () => {
           <Input placeholder='0' />
         </Form.Item>
         <Form.Item
-          label='Fee'
-          name='signPartyFee'
-          rules={[
-            {
-              required: false,
-              message: 'Please select Fee!'
-            }
-          ]}
-          initialValue='0.0101'
-        >
-          <Select>
-            <Select.Option value='0.0011'>Slow(0.0011)</Select.Option>
-            <Select.Option value='0.0101'>Default(0.0101)</Select.Option>
-            <Select.Option value='0.201'>Fast(0.201)</Select.Option>
-          </Select>
-        </Form.Item>
-        <Form.Item
           label='Memo (Optional)'
           name='signPartyMemo'
           rules={[
@@ -144,6 +155,75 @@ const SendZkapp = () => {
         >
           <Input />
         </Form.Item>
+        <Form.Item
+          label='Fee'
+          name='sendFee'
+          rules={[
+            {
+              required: false,
+              message: 'Please select Fee!'
+            }
+          ]}
+          initialValue='0.0101'
+        >
+          <Radio.Group
+            options={options}
+            onChange={handleChangeFee}
+            optionType='button'
+          />
+        </Form.Item>
+        <hr className='m-0' />
+        <Collapse
+          ghost
+          expandIcon={({ isActive }) => (
+            <CaretUpOutlined rotate={isActive ? 0 : 180} />
+          )}
+          expandIconPosition='end'
+          onChange={handleChangeCollapse}
+        >
+          <Panel header='Advanced' key='1' />
+        </Collapse>
+        <div style={{ height: open ? 'auto' : 0, position: 'relative' }}>
+          <Form.Item
+            label='Transaction Fee'
+            name='sendFee2'
+            help={
+              warning ? (
+                <span style={{ color: '#faad14' }}>
+                  Fees are much higher than average
+                </span>
+              ) : null
+            }
+            rules={[
+              () => ({
+                validator(_, value) {
+                  setWarning(false)
+                  if (!value) {
+                    return Promise.resolve()
+                  }
+                  if (Number(value) < 0.0011) {
+                    return Promise.reject(
+                      new Error(
+                        `Invalid user command. Fee ${value} is less than the minimum fee of 0.0101`
+                      )
+                    )
+                  }
+                  if (Number(value) > 10) {
+                    setWarning(true)
+                    return Promise.resolve()
+                  }
+                  return Promise.resolve()
+                }
+              })
+            ]}
+          >
+            <InputPrice
+              placeholder={placeholder}
+              onKeyDown={blockInvalidChar}
+              onChange={handleChangeFeeInput}
+            />
+          </Form.Item>
+        </div>
         <div className='submit-section'>
           <Form.Item
             className='bg-white'
@@ -157,8 +237,8 @@ const SendZkapp = () => {
                 htmlType='submit'
                 block
                 disabled={
-                  !form.getFieldValue('gqlContent') ||
-                  !form.getFieldValue('zkAddress') ||
+                  !form.getFieldValue('receiveAddress') ||
+                  !form.getFieldValue('sendAmount') ||
                   !!form.getFieldsError().filter(({ errors }) => errors.length)
                     .length
                 }
