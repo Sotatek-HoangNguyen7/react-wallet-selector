@@ -48,10 +48,10 @@ const Send = () => {
         if (result.hash) {
           setLoading(false)
           const newResult = {
-            id: '',
+            id: 'N/A',
             hash: result.hash,
             isDelegation: false,
-            kind: ''
+            kind: 'N/A'
           }
           setSendMessageResult(JSON.stringify(newResult))
         } else {
