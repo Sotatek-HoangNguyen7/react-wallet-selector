@@ -41,8 +41,8 @@ const SendZkapp = () => {
     setSendMessageResult('')
     try {
       const values = await form.validateFields()
-      const zkAddress = values.zkAppAddress?.trim()
-      const zkBody = await getZkbody(url, zkAddress)
+      const answer = values.answer?.trim()
+      const zkBody = await getZkbody(answer, '')
       setLoading(true)
       if (wallet === 'Auro') {
         const result = await WALLET.Auro.methods
@@ -56,41 +56,37 @@ const SendZkapp = () => {
           .catch((err) => err)
         if (result.hash) {
           setLoading(false)
-          const newResult = {
-            id: 'N/A',
-            hash: result.hash,
-            isDelegation: false,
-            kind: 'N/A'
-          }
-          setSendMessageResult(rJSON.stringify(newResult))
+          setSendMessageResult(rJSON.stringify(result))
         } else {
           setLoading(false)
           setSendMessageResult(result.message)
         }
       } else {
-        // try {
-        //   const url = gqlContent.value
-        //   if (!url) {
-        //     console.log('need Set useful gql-url')
-        //     return
-        //   }
-        //   const zkAddress = zkAppAddress.value?.trim()
-        //   const zkBody = await getZkbody(url, zkAddress)
-        //   const result = await WALLET.MetamaskFlask.methods
-        //     .SendTransactionZkApp(newValues)
-        //     .catch((_err) => {
-        //       setSendMessageResult(JSON.stringify(_err))
-        //     })
-        //   if (result) {
-        //     setLoading(false)
-        //     setSendMessageResult(JSON.stringify(result))
-        //   } else {
-        //     setLoading(false)
-        //   }
-        // } catch (error) {
-        //   setLoading(false)
-        //   setSendMessageResult(JSON.stringify(error))
-        // }
+        try {
+          const values = await form.validateFields()
+          const answer = values.answer?.trim()
+          const zkBody = await getZkbody(answer, '')
+          const result = await WALLET.MetamaskFlask.methods
+            .SendTransactionZkApp({
+              transaction: zkBody,
+              feePayer: {
+                memo: values.signPartyMemo || '',
+                fee: values.sendFee2 ? values.sendFee2 : values.sendFee
+              }
+            })
+            .catch((_err) => {
+              setSendMessageResult(JSON.stringify(_err))
+            })
+          if (result) {
+            setLoading(false)
+            setSendMessageResult(JSON.stringify(result))
+          } else {
+            setLoading(false)
+          }
+        } catch (error) {
+          setLoading(false)
+          setSendMessageResult(JSON.stringify(error))
+        }
       }
     } catch (errorInfo) {}
   }
@@ -121,28 +117,16 @@ const SendZkapp = () => {
     <Card title='Mina Party' type='inner'>
       <Form form={form} autoComplete='off' {...layout} onFinish={sendButton}>
         <Form.Item
-          label='GraphQL url'
-          name='gqlContent'
+          label='Today is what day of the week?'
+          name='answer'
           rules={[
             {
               required: true,
-              message: 'Please input GraphQL url!'
+              message: 'Please input Aswer!'
             }
           ]}
         >
           <Input placeholder='Address' />
-        </Form.Item>
-        <Form.Item
-          label='ZkApp Address'
-          name='zkAppAddress'
-          rules={[
-            {
-              required: true,
-              message: 'Please input ZkApp Address!'
-            }
-          ]}
-        >
-          <Input placeholder='0' />
         </Form.Item>
         <Form.Item
           label='Memo (Optional)'
@@ -238,8 +222,7 @@ const SendZkapp = () => {
                 htmlType='submit'
                 block
                 disabled={
-                  !form.getFieldValue('receiveAddress') ||
-                  !form.getFieldValue('sendAmount') ||
+                  !form.getFieldValue('answer') ||
                   !!form.getFieldsError().filter(({ errors }) => errors.length)
                     .length
                 }

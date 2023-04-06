@@ -1,13 +1,6 @@
 /* eslint-disable no-sequences */
 /* eslint-disable no-void */
-import {
-  Field,
-  SmartContract,
-  state,
-  State,
-  method,
-  Permissions
-} from 'snarkyjs'
+import { Field, SmartContract, state, State, method, isReady } from 'snarkyjs'
 var __decorate =
   (this && this.__decorate) ||
   function (decorators, target, key, desc) {
@@ -33,16 +26,17 @@ var __metadata =
     if (typeof Reflect === 'object' && typeof Reflect.metadata === 'function')
       return Reflect.metadata(k, v)
   }
+await isReady
 /**
  * Basic Example
  * See https://docs.minaprotocol.com/zkapps for more info.
  *
- * The Add contract initializes the state variable 'num' to be a Field(1) value by default when deployed.
+ * The Quiz contract initializes the state variable 'num' to be a Field(1) value by default when deployed.
  * When the 'update' method is called, the Add contract adds Field(2) to its 'num' contract state.
  *
  * This file is safe to delete and replace with your own contract.
  */
-export class Add extends SmartContract {
+export class Quiz extends SmartContract {
   constructor() {
     super(...arguments)
     this.num = State()
@@ -50,23 +44,20 @@ export class Add extends SmartContract {
 
   init() {
     super.init()
-    this.account.permissions.set({
-      ...Permissions.default(),
-      send: Permissions.signature()
-    })
     this.num.set(Field(1))
   }
 
-  update() {
+  update(answer) {
+    const currentDayNumber = new Date().getUTCDay()
     const currentState = this.num.get()
     this.num.assertEquals(currentState) // precondition that links this.num.get() to the actual on-chain state
-    const newState = currentState.add(2)
-    this.num.set(newState)
+    answer.assertEquals(currentState.add(currentDayNumber))
+    this.num.set(answer)
   }
 }
 __decorate(
   [state(Field), __metadata('design:type', Object)],
-  Add.prototype,
+  Quiz.prototype,
   'num',
   void 0
 )
@@ -74,10 +65,11 @@ __decorate(
   [
     method,
     __metadata('design:type', Function),
-    __metadata('design:paramtypes', []),
+    __metadata('design:paramtypes', [Field]),
     __metadata('design:returntype', void 0)
   ],
-  Add.prototype,
+  Quiz.prototype,
   'update',
   null
 )
+// # sourceMappingURL=Quiz.js.map

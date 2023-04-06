@@ -34,6 +34,7 @@ function Connect(props) {
   const { isInstalledWallet, activeAccount, balance, network, connected } =
     useAppSelector((state) => state.wallet)
   const [value, setNetWorkState] = useState(network)
+  const [stateWallet, setStateWallet] = useState('MetamaskFlask')
   const [loading, setLoading] = useState(false)
   const [loadingBalance, setLoadingBalance] = useState(false)
 
@@ -233,6 +234,7 @@ function Connect(props) {
 
   const handleChangeWallet = async (str) => {
     localStorage.setItem('wallet', str)
+    setStateWallet(str)
     setLoading(false)
     if (connected) {
       if (str === 'Auro') {
@@ -332,7 +334,7 @@ function Connect(props) {
             onClick={() => openLinkInstallFlask(localStorage.getItem('wallet'))}
             danger
           >
-            {localStorage.getItem('wallet') === 'Auro'
+            {stateWallet || localStorage.getItem('wallet') === 'Auro'
               ? 'Please install Auro Wallet. Click here!'
               : 'Metamask Flask is required to run snap!'}
           </Button>

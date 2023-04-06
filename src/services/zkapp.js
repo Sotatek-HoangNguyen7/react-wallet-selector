@@ -1,12 +1,6 @@
-import {
-  fetchAccount,
-  isReady,
-  Mina,
-  PublicKey,
-  setGraphqlEndpoint
-} from 'snarkyjs'
+import { isReady, Mina } from 'snarkyjs'
 
-import { Add as AddZkapp } from './contract/Add'
+import { Quiz as QuizZkapp } from './contract/Quiz'
 
 const timingStack = []
 let i = 0
@@ -22,24 +16,13 @@ function toc() {
   console.log(`\r${label}... ${time.toFixed(3)} sec\n`)
 }
 
-export async function getZkbody(url, zkAppAddress) {
+export async function getZkbody(answer, zkAppAddress) {
   try {
     console.log('is ready')
     await isReady
-    toc()
-    setGraphqlEndpoint(url)
-    const zkappAddress = PublicKey.fromBase58(zkAppAddress)
-    tic('fetch account', zkappAddress)
-    await fetchAccount({ publicKey: zkAppAddress }).catch((err) => err)
-    toc()
-
-    tic('begin compile')
-    await AddZkapp.compile(zkappAddress)
-    toc()
-
     tic('contract update transaction')
     const transaction = await Mina.transaction(() => {
-      new AddZkapp(zkappAddress).update()
+      new QuizZkapp().update(answer)
     })
     toc()
     tic('contract update json')

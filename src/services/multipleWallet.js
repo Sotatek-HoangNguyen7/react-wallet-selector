@@ -144,20 +144,7 @@ export const WALLET = {
         })
       },
 
-      SendTransactionZkApp: async (payload) => {
-        // return await window?.ethereum?.request({
-        //   method: 'wallet_invokeSnap',
-        //   params: {
-        //     snapId: snapId,
-        //     request: {
-        //       method: 'mina_sendPaymentZkapp',
-        //       params: {
-        //         ...payload
-        //       }
-        //     }
-        //   }
-        // })
-      },
+      SendTransactionZkApp: async (payload) => {},
 
       getTxHistory: async () => {
         return await window?.ethereum?.request({
