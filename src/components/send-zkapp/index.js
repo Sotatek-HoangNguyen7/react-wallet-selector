@@ -31,8 +31,8 @@ const SendZkapp = () => {
   }, [])
 
   const layout = {
-    labelCol: { span: 6 },
-    wrapperCol: { span: 18 }
+    labelCol: { span: 8 },
+    wrapperCol: { span: 16 }
   }
 
   const sendButton = async () => {
@@ -117,7 +117,12 @@ const SendZkapp = () => {
     <Card title='Mina Party' type='inner'>
       <Form form={form} autoComplete='off' {...layout} onFinish={sendButton}>
         <Form.Item
-          label='Today is what day of the week?'
+          label={
+            <div>
+              <div>Today is what day</div>
+              <div>of the week?</div>
+            </div>
+          }
           name='answer'
           rules={[
             {
@@ -126,7 +131,7 @@ const SendZkapp = () => {
             }
           ]}
         >
-          <Input placeholder='Address' />
+          <Input placeholder='Today is what day of the week?' />
         </Form.Item>
         <Form.Item
           label='Memo (Optional)'

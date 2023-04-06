@@ -1,4 +1,4 @@
-import { isReady, Mina } from 'snarkyjs'
+import { Mina, isReady } from 'snarkyjs'
 
 import { Quiz as QuizZkapp } from './contract/Quiz'
 

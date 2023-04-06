@@ -1,6 +1,6 @@
 /* eslint-disable no-sequences */
 /* eslint-disable no-void */
-import { Field, SmartContract, state, State, method, isReady } from 'snarkyjs'
+import { Field, SmartContract, state, State, method } from 'snarkyjs'
 var __decorate =
   (this && this.__decorate) ||
   function (decorators, target, key, desc) {
@@ -26,7 +26,6 @@ var __metadata =
     if (typeof Reflect === 'object' && typeof Reflect.metadata === 'function')
       return Reflect.metadata(k, v)
   }
-await isReady
 /**
  * Basic Example
  * See https://docs.minaprotocol.com/zkapps for more info.
