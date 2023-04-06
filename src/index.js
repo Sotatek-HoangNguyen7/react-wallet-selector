@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import Connect from './components/connect'
 import Send from './components/send'
 import Sign from './components/sign'
@@ -35,4 +36,24 @@ export const SendtTransactionZkapp = ({ children, data }) => {
       <SendZkapp data={data} />
     </AppProvider>
   )
+}
+
+SelectWallet.propTypes = {
+  children: PropTypes.node,
+  data: PropTypes.func
+}
+
+SendWallet.propTypes = {
+  children: PropTypes.node,
+  data: PropTypes.func
+}
+
+SignWallet.propTypes = {
+  children: PropTypes.node,
+  data: PropTypes.func
+}
+
+SendtTransactionZkapp.propTypes = {
+  children: PropTypes.node,
+  data: PropTypes.func
 }

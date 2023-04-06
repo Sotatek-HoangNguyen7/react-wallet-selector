@@ -157,11 +157,11 @@ function Connect(props) {
 
   const connectToAuro = async (isloadBalance) => {
     const result = await WALLET.Auro.methods.connectToAuro().catch((err) => {
-      console.log('connectToAuro', connectToAuro)
+      console.log('connectToAuro')
       setLoading(false)
     })
     const network = await window?.mina?.requestNetwork().catch((err) => {
-      console.log('requestNetwork', connectToAuro)
+      console.log('requestNetwork')
       setLoading(false)
     })
     setNetWorkState(network)

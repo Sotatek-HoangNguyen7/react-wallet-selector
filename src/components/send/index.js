@@ -2,7 +2,7 @@
 /* eslint-disable no-undef */
 import React, { useState, useEffect } from 'react'
 import { Form, Button, Card, Input, Collapse, Radio } from 'antd'
-import { blockInvalidChar, isBase58 } from '../../utils/utils'
+import { blockInvalidChar, addressValid } from '../../utils/utils'
 import InputPrice from '../input'
 import { CaretUpOutlined } from '@ant-design/icons'
 import { WALLET } from '../../services/multipleWallet'
@@ -44,12 +44,16 @@ const Send = () => {
       if (wallet === 'Auro') {
         const result = await WALLET.Auro.methods
           .SendTransaction({
-            amount: payload.sendAmount,
-            to: payload.receiveAddress,
+            amount: values.sendAmount,
+            to: values.receiveAddress,
             fee: values.sendFee2 ? values.sendFee2 : values.sendFee,
-            memo: payload.sendMemo
+            memo: values.sendMemo
           })
-          .catch((err) => err)
+          .catch((err) => {
+            setLoading(false)
+            setSendMessageResult(JSON.stringify(err))
+            console.log(err)
+          })
         if (result.hash) {
           setLoading(false)
           const newResult = {
@@ -79,6 +83,7 @@ const Send = () => {
           const result = await WALLET.MetamaskFlask.methods
             .SendTransaction(newValues)
             .catch((_err) => {
+              setLoading(false)
               setSendMessageResult(JSON.stringify(_err))
             })
           if (result) {
@@ -130,17 +135,22 @@ const Send = () => {
           label='To'
           name='receiveAddress'
           rules={[
-            () => ({
-              validator(_, value) {
+            {
+              validator: (_, value) => {
                 if (!value) {
                   return Promise.reject(new Error('Please input To!'))
                 }
-                if (!isBase58(value) || !(value.length === 55)) {
+                if (value.substring(0, 3) !== 'B62') {
                   return Promise.reject(new Error('Invalid address format!'))
+                }
+                if (!addressValid(value)) {
+                  return Promise.reject(
+                    new Error('Please enter a valid wallet address!')
+                  )
                 }
                 return Promise.resolve()
               }
-            })
+            }
           ]}
         >
           <Input placeholder='Address' />
