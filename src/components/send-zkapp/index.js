@@ -117,12 +117,7 @@ const SendZkapp = () => {
     <Card title='Mina Party' type='inner'>
       <Form form={form} autoComplete='off' {...layout} onFinish={sendButton}>
         <Form.Item
-          label={
-            <div>
-              <div>Today is what day</div>
-              <div>of the week?</div>
-            </div>
-          }
+          label='a + b = ?'
           name='answer'
           rules={[
             {

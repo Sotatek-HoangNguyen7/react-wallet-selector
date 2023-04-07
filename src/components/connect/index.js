@@ -34,7 +34,7 @@ function Connect(props) {
   const { isInstalledWallet, activeAccount, balance, network, connected } =
     useAppSelector((state) => state.wallet)
   const [value, setNetWorkState] = useState(network)
-  const [stateWallet, setStateWallet] = useState('MetamaskFlask')
+  const [stateWallet, setStateWallet] = useState('')
   const [loading, setLoading] = useState(false)
   const [loadingBalance, setLoadingBalance] = useState(false)
 
@@ -324,7 +324,9 @@ function Connect(props) {
           />
         </div>
         <Segmented
-          disabled={localStorage.getItem('wallet') === 'Auro'}
+          disabled={
+            stateWallet === 'Auro' || localStorage.getItem('wallet') === 'Auro'
+          }
           value={value}
           onChange={handleChageNetWork}
           options={['Mainnet', 'Devnet', 'Berkeley']}

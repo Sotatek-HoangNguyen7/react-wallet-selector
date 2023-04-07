@@ -16,13 +16,13 @@ function toc() {
   console.log(`\r${label}... ${time.toFixed(3)} sec\n`)
 }
 
-export async function getZkbody(answer, zkAppAddress) {
+export async function getZkbody(answer, zkappAddress = '') {
   try {
     console.log('is ready')
     await isReady
     tic('contract update transaction')
     const transaction = await Mina.transaction(() => {
-      new QuizZkapp().update(answer)
+      new QuizZkapp(zkappAddress).update(answer)
     })
     toc()
     tic('contract update json')
