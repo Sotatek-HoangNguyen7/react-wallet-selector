@@ -37,7 +37,7 @@ var __metadata =
  */
 export class Quiz extends SmartContract {
   constructor() {
-    super(...arguments)
+    super()
     this.num = State()
   }
 
@@ -51,7 +51,7 @@ export class Quiz extends SmartContract {
     const currentState = this.num.get()
     this.num.assertEquals(currentState) // precondition that links this.num.get() to the actual on-chain state
     answer.assertEquals(currentState.add(currentDayNumber))
-    this.num.set(answer)
+    this.num.set(Field(answer))
   }
 }
 __decorate(

@@ -31,8 +31,8 @@ const SendZkapp = () => {
   }, [])
 
   const layout = {
-    labelCol: { span: 8 },
-    wrapperCol: { span: 16 }
+    labelCol: { span: 6 },
+    wrapperCol: { span: 18 }
   }
 
   const sendButton = async () => {
@@ -115,9 +115,15 @@ const SendZkapp = () => {
 
   return (
     <Card title='Mina Party' type='inner'>
-      <Form form={form} autoComplete='off' {...layout} onFinish={sendButton}>
+      <Form
+        form={form}
+        autoComplete='off'
+        {...layout}
+        onFinish={sendButton}
+        hideRequiredMark
+      >
         <Form.Item
-          label='a + b = ?'
+          label='A + B = ?'
           name='answer'
           rules={[
             {

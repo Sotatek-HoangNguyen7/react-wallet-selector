@@ -1,8 +1,17 @@
-import { Mina, isReady } from 'snarkyjs'
+import {
+  Mina,
+  isReady,
+  PublicKey,
+  fetchAccount,
+  setGraphqlEndpoint
+} from 'snarkyjs'
 
 import { Quiz as QuizZkapp } from './contract/Quiz'
 
 const timingStack = []
+const zkAppAddress = 'B62qrNT39BFhsqy85CCr4uemcfcgSxQVYf9hJHEYEzJ8Kf4U3bcgaGc'
+const url = `https://berkeley.minaexplorer.com/wallet/${zkAppAddress}`
+
 let i = 0
 
 function tic(label = `Run command ${i++}`) {
@@ -16,13 +25,25 @@ function toc() {
   console.log(`\r${label}... ${time.toFixed(3)} sec\n`)
 }
 
-export async function getZkbody(answer, zkappAddress = '') {
+export async function getZkbody(answer) {
   try {
-    console.log('is ready')
+    tic('is ready')
     await isReady
+    toc()
+    setGraphqlEndpoint(url)
+    const zkappAddress = PublicKey.fromBase58(zkAppAddress)
+    const zkApp = new QuizZkapp(zkappAddress)
+    tic('fetch account', zkappAddress)
+    await fetchAccount({ publicKey: zkAppAddress }).catch((err) =>
+      console.log(err)
+    )
+    toc()
+    tic('begin compile')
+    await zkApp.compile(zkappAddress)
+    toc()
     tic('contract update transaction')
     const transaction = await Mina.transaction(() => {
-      new QuizZkapp(zkappAddress).update(answer)
+      zkApp(zkappAddress).update(answer)
     })
     toc()
     tic('contract update json')
