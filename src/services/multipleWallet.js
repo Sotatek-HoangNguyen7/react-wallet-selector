@@ -272,13 +272,8 @@ export const WALLET = {
       },
 
       SendTransactionZkApp: async (payload) => {
-        return await window?.mina?.sendTransaction({
-          transaction: payload.zkBody,
-          feePayer: {
-            memo: payload.signPartyMemo,
-            fee: payload.signPartyFee
-          }
-        })
+        console.log('SendTransactionZkApp')
+        return await window?.mina?.sendTransaction(payload)
       },
 
       Stake: async (payload) => {

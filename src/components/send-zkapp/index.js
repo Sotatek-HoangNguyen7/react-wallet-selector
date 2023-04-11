@@ -40,53 +40,26 @@ const SendZkapp = () => {
     if (!connected) return setSendMessageResult('Please connect wallet!')
     setSendMessageResult('')
     try {
+      setLoading(true)
       const values = await form.validateFields()
       const answer = values.answer?.trim()
-      const zkBody = await getZkbody(answer, '')
-      setLoading(true)
-      if (wallet === 'Auro') {
-        const result = await WALLET.Auro.methods
-          .SendTransactionZkApp({
-            transaction: zkBody,
-            feePayer: {
-              memo: values.signPartyMemo || '',
-              fee: values.sendFee2 ? values.sendFee2 : values.sendFee
-            }
-          })
-          .catch((err) => err)
-        if (result.hash) {
-          setLoading(false)
-          setSendMessageResult(rJSON.stringify(result))
-        } else {
-          setLoading(false)
-          setSendMessageResult(result.message)
-        }
-      } else {
-        try {
-          const values = await form.validateFields()
-          const answer = values.answer?.trim()
-          const zkBody = await getZkbody(answer, '')
-          const result = await WALLET.MetamaskFlask.methods
-            .SendTransactionZkApp({
-              transaction: zkBody,
-              feePayer: {
-                memo: values.signPartyMemo || '',
-                fee: values.sendFee2 ? values.sendFee2 : values.sendFee
-              }
-            })
-            .catch((_err) => {
-              setSendMessageResult(JSON.stringify(_err))
-            })
-          if (result) {
-            setLoading(false)
-            setSendMessageResult(JSON.stringify(result))
-          } else {
-            setLoading(false)
+      const fee = values.sendFee2 ? values.sendFee2 : values.sendFee
+      const zkBody = await getZkbody(answer, fee)
+      const result = await WALLET.Auro.methods
+        .SendTransactionZkApp({
+          transaction: zkBody,
+          feePayer: {
+            memo: values.signPartyMemo || '',
+            fee: fee
           }
-        } catch (error) {
-          setLoading(false)
-          setSendMessageResult(JSON.stringify(error))
-        }
+        })
+        .catch((err) => err)
+      if (result.hash) {
+        setLoading(false)
+        setSendMessageResult(rJSON.stringify(result))
+      } else {
+        setLoading(false)
+        setSendMessageResult(result.message)
       }
     } catch (errorInfo) {}
   }

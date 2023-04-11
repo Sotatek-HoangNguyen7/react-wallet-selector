@@ -1,56 +1,95 @@
+/* eslint-disable no-sequences */
+/* eslint-disable no-void */
+/* eslint-disable no-unused-vars */
 import {
-  Mina,
-  isReady,
   PublicKey,
+  Mina,
+  PrivateKey,
   fetchAccount,
+  isReady,
+  Field,
   setGraphqlEndpoint
 } from 'snarkyjs'
+import { Quiz } from './contract/Quiz'
 
-import { Quiz as QuizZkapp } from './contract/Quiz'
+const senderPrivateKey = 'EKEZvpJoapJyR8DH9zG1PTsrsdF56jdFS5yKLeoJUzagapGtX42t'
+const senderAddress = 'B62qqQXYTh8zAoSNS9Nf5mBkA2MxdC7WpbzMd6S1cwtNPzzwD582eDr'
 
-const timingStack = []
-const zkAppAddress = 'B62qrNT39BFhsqy85CCr4uemcfcgSxQVYf9hJHEYEzJ8Kf4U3bcgaGc'
-const url = `https://berkeley.minaexplorer.com/wallet/${zkAppAddress}`
+const zkAppPrivateKey =
+  'B62qm3p1ZGw3xiWu4x6bfrF2FS4kj2bp1qrHkdM9rr9WscP3g6qNcb6'
+// This should be removed once the zkAppAddress is updated.
+const zkAppAddress = 'B62qm3p1ZGw3xiWu4x6bfrF2FS4kj2bp1qrHkdM9rr9WscP3g6qNcb6'
 
-let i = 0
+// const url = `https://berkeley.minaexplorer.com/wallet/${zkAppAddress}`
 
-function tic(label = `Run command ${i++}`) {
-  console.log(`${label}... `)
-  timingStack.push([label, Date.now()])
-}
-
-function toc() {
-  const [label, start] = timingStack.pop()
-  const time = (Date.now() - start) / 1000
-  console.log(`\r${label}... ${time.toFixed(3)} sec\n`)
-}
-
-export async function getZkbody(answer) {
+export async function getZkbody(answer, fee) {
   try {
-    tic('is ready')
+    console.log('-start')
     await isReady
-    toc()
-    setGraphqlEndpoint(url)
-    const zkappAddress = PublicKey.fromBase58(zkAppAddress)
-    const zkApp = new QuizZkapp(zkappAddress)
-    tic('fetch account', zkappAddress)
-    await fetchAccount({ publicKey: zkAppAddress }).catch((err) =>
-      console.log(err)
+    setGraphqlEndpoint('https://proxy.berkeley.minaexplorer.com/graphql')
+    // Update this to use the address (public key) for your zkApp account
+    // To try it out, you can try this address for an example "Add" smart contract that we've deployed to
+    // Berkeley Testnet B62qisn669bZqsh8yMWkNyCA7RvjrL6gfdr3TQxymDHNhTc97xE5kNV
+    if (!zkAppAddress) {
+      console.error(
+        'The following error is caused because the zkAppAddress has an empty string as the public key. Update the zkAppAddress with the public key for your zkApp account, or try this address for an example "Add" smart contract that we deployed to Berkeley Testnet: B62qqkb7hD1We6gEfrcqosKt9C398VLp1WXeTo1i9boPoqF7B1LxHg4'
+      )
+    }
+    const address = PublicKey.fromBase58(zkAppAddress)
+    const zkApp = new Quiz(address)
+    console.log('zkApp', zkApp)
+
+    // account
+
+    console.log('start get account')
+    const account = await fetchAccount(
+      { publicKey: zkAppAddress, ...zkApp },
+      'https://proxy.berkeley.minaexplorer.com/graphql'
     )
-    toc()
-    tic('begin compile')
-    await zkApp.compile(zkappAddress)
-    toc()
-    tic('contract update transaction')
+    console.log(`-account:`, account)
+
+    // compile
+
+    console.log('compile start')
+    const compile = await Quiz.compile()
+    console.log('compile end', compile)
+
+    // transaction
+
+    const zkState = zkApp.num.get().toString()
+    console.log('zkState', zkState)
     const transaction = await Mina.transaction(() => {
-      zkApp(zkappAddress).update(answer)
+      zkApp.update(Field(answer))
     })
-    toc()
-    tic('contract update json')
     await transaction.prove().catch((err) => err)
     const partiesJsonUpdate = transaction.toJSON()
-    toc()
+    console.log(partiesJsonUpdate)
+
     return partiesJsonUpdate
+
+    // const tx = await Mina.transaction(
+    //   { sender: PublicKey.fromBase58(senderAddress), fee: fee },
+    //   () => {
+    //     zkApp.update(Field(answer))
+    //   }
+    // )
+    // console.log(`tx:`, tx)
+    // const provedTx = await tx.prove()
+    // console.log('send transaction...', provedTx)
+    // const sentTx = await tx
+    //   .sign([PrivateKey.fromBase58(senderPrivateKey)])
+    //   .send()
+    // console.log('sentTx:', sentTx)
+
+    // if (sentTx.hash() !== undefined) {
+    //   console.log(`
+    //     Success! Update transaction sent.
+
+    //     Your smart contract state will be updated
+    //     as soon as the transaction is included in a block:
+    //     https://berkeley.minaexplorer.com/transaction/${sentTx.hash()}
+    //     `)
+    // }
   } catch (error) {
     console.log('error', error)
   }
