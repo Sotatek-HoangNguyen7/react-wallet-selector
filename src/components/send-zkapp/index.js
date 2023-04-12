@@ -53,7 +53,10 @@ const SendZkapp = () => {
             fee: fee
           }
         })
-        .catch((err) => err)
+        .catch((_err) => {
+          setLoading(false)
+          setSendMessageResult(rJSON.stringify(_err))
+        })
       if (result.hash) {
         setLoading(false)
         setSendMessageResult(rJSON.stringify(result))
