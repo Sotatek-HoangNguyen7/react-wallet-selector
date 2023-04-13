@@ -4,14 +4,15 @@
 import React, { useEffect, useState } from 'react'
 import { Avatar, Segmented, Space, Button, Typography } from 'antd'
 import { ReloadOutlined } from '@ant-design/icons'
+import MetamaskFlask from '../../icon/meta'
+import Auro from '../../icon/auro'
 import { WALLET } from '../../services/multipleWallet'
 import { useAppSelector, useAppDispatch } from '../../hooks/redux'
 import {
   formatBalance,
   formatAddress,
   getUrlProxy,
-  openLinkInstallFlask,
-  iconWallet
+  openLinkInstallFlask
 } from '../../utils/utils'
 import {
   login,
@@ -304,20 +305,16 @@ function Connect(props) {
             options={[
               {
                 label: (
-                  <div style={{ padding: 4 }}>
-                    <Avatar
-                      shape='square'
-                      size={80}
-                      src={iconWallet.MetamaskFlask}
-                    />
+                  <div style={{ paddingTop: 10 }}>
+                   <MetamaskFlask/>
                   </div>
                 ),
                 value: 'MetamaskFlask'
               },
               {
                 label: (
-                  <div style={{ padding: 4 }}>
-                    <Avatar shape='square' size={80} src={iconWallet.Auro} />
+                  <div style={{ paddingTop: 10 }}>
+                    <Auro />
                   </div>
                 ),
                 value: 'Auro'

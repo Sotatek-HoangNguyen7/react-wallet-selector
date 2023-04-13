@@ -32,8 +32,8 @@ const SendZkapp = () => {
   }, [])
 
   const layout = {
-    labelCol: { span: 8 },
-    wrapperCol: { span: 16 }
+    labelCol: { span: 6 },
+    wrapperCol: { span: 18 }
   }
 
   const getStateZkapp = async () => {
@@ -132,16 +132,17 @@ const SendZkapp = () => {
   ]
 
   return (
-    <Card title='Mina Party' type='inner'>
+    <Card title='Send zkApp transaction' type='inner'>
       <Form
         form={form}
         autoComplete='off'
         {...layout}
         onFinish={sendButton}
         hideRequiredMark
+        labelWrap
       >
         <Form.Item
-          label='Input correct state?'
+          label='Can you input correct state?'
           name='answer'
           rules={[
             {
@@ -252,7 +253,6 @@ const SendZkapp = () => {
                         .getFieldsError()
                         .filter(({ errors }) => errors.length).length
                     }
-                    block
                   >
                     Send
                   </Button>
@@ -268,7 +268,6 @@ const SendZkapp = () => {
                   loading={loadingGetStateZkap}
                   type='primary'
                   onClick={getStateZkapp}
-                  block
                 >
                   Check current state
                 </Button>

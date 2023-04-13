@@ -1,5 +1,6 @@
 /* eslint-disable camelcase */
 /* eslint-disable no-unused-expressions */
+import React from 'react'
 import axios from 'axios'
 import bs58check from 'bs58check'
 import { Buffer } from 'buffer'
@@ -172,12 +173,6 @@ export const openLinkInstallFlask = (wallet) => {
   } else {
     window?.open(MetamaskFlaskLink, '_blank')?.focus()
   }
-}
-
-export const iconWallet = {
-  MetamaskFlask:
-    'https://addons.mozilla.org/user-media/addon_icons/2729/2729495-64.png?modified=88e149c3',
-  Auro: 'https://www.aurowallet.com/wp-content/uploads/2022/10/icon-new.svg'
 }
 
 export const dateFomat = 'YYYY-MM-DD hh:mm:ss'

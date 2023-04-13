@@ -54,9 +54,7 @@ export async function getZkbody(answer) {
 
     tic('fetch account', address)
 
-    const res = await fetchAccount({ publicKey: zkAppAddress }).catch(
-      (err) => err
-    )
+    const res = await fetchAccount({ publicKey: zkAppAddress })
 
     if (res?.account) console.log(res?.account)
 
@@ -92,7 +90,7 @@ export async function getZkbody(answer) {
 
     tic('contract update json')
 
-    await transaction.prove().catch((err) => err)
+    await transaction.prove()
 
     const partiesJsonUpdate = transaction.toJSON()
 
@@ -131,9 +129,7 @@ export async function getzkState() {
 
     tic('fetch account', address)
 
-    const res = await fetchAccount({ publicKey: zkAppAddress }).catch(
-      (err) => err
-    )
+    const res = await fetchAccount({ publicKey: zkAppAddress })
 
     if (res?.account) console.log(res?.account)
 
