@@ -1,13 +1,13 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-undef */
 import React, { useState, useEffect } from 'react'
-import { Form, Button, Card, Input, Radio, Collapse } from 'antd'
+import { Form, Button, Card, Input, Radio, Collapse, Skeleton } from 'antd'
 import { CaretUpOutlined } from '@ant-design/icons'
 import InputPrice from '../input'
 import { blockInvalidChar } from '../../utils/utils'
 import { WALLET } from '../../services/multipleWallet'
 import { useAppSelector } from '../../hooks/redux'
-import { getZkbody } from '../../services/zkapp'
+import { getZkbody, getzkState } from '../../services/zkapp'
 import '../../../node_modules/bootstrap/dist/css/bootstrap.min.css'
 import '../../../src/styles.css'
 
@@ -21,6 +21,8 @@ const SendZkapp = () => {
   const [warning, setWarning] = useState('')
   const [placeholder, setPlaceholder] = useState('0.0101')
   const [, forceUpdate] = useState({})
+  const [zkState, setzkState] = useState(null)
+  const [loadingGetStateZkap, setLoadingGetStateZkap] = useState(false)
 
   const { isInstalledWallet, connected } = useAppSelector(
     (state) => state.wallet
@@ -29,6 +31,19 @@ const SendZkapp = () => {
   useEffect(() => {
     forceUpdate({})
   }, [])
+
+
+  useEffect(() => {
+    (async () => {
+      const wallet = localStorage.getItem('wallet')
+      if (connected && wallet === 'Auro') {
+        setLoadingGetStateZkap(true)
+        const zkState = await getzkState()
+        setLoadingGetStateZkap(false)
+        setzkState(zkState)
+      }
+    })();
+  }, []);
 
   const layout = {
     labelCol: { span: 6 },
@@ -45,24 +60,34 @@ const SendZkapp = () => {
       const answer = values.answer?.trim()
       const fee = values.sendFee2 ? values.sendFee2 : values.sendFee
       const zkBody = await getZkbody(answer, fee)
-      const result = await WALLET.Auro.methods
-        .SendTransactionZkApp({
-          transaction: zkBody,
-          feePayer: {
-            memo: values.signPartyMemo || '',
-            fee: fee
-          }
-        })
-        .catch((_err) => {
-          setLoading(false)
-          setSendMessageResult(rJSON.stringify(_err))
-        })
-      if (result.hash) {
+      if (zkBody?.error) {
         setLoading(false)
-        setSendMessageResult(rJSON.stringify(result))
+        setSendMessageResult(JSON.stringify(zkBody))
       } else {
-        setLoading(false)
-        setSendMessageResult(result.message)
+        try {
+          const result = await WALLET.Auro.methods
+            .SendTransactionZkApp({
+              transaction: zkBody.partiesJsonUpdate,
+              feePayer: {
+                memo: values.signPartyMemo || '',
+                fee: fee
+              }
+            })
+            .catch((_err) => {
+              setLoading(false)
+              setSendMessageResult(JSON.stringify(_err))
+            })
+          if (result.hash) {
+            setLoading(false)
+            setSendMessageResult(JSON.stringify(result))
+          } else {
+            setLoading(false)
+            setSendMessageResult(result.message)
+          }
+        } catch (error) {
+          setLoading(false)
+          setSendMessageResult(JSON.stringify(error))
+        }
       }
     } catch (errorInfo) {}
   }
@@ -99,7 +124,7 @@ const SendZkapp = () => {
         hideRequiredMark
       >
         <Form.Item
-          label='A + B = ?'
+          label={loadingGetStateZkap ? <Skeleton /> :`${zkState} + ${new Date().getUTCDay()} = ?`}
           name='answer'
           rules={[
             {
@@ -108,7 +133,7 @@ const SendZkapp = () => {
             }
           ]}
         >
-          <Input placeholder='Today is what day of the week?' />
+          <Input placeholder='' />
         </Form.Item>
         <Form.Item
           label='Memo (Optional)'

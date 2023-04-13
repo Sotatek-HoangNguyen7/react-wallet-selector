@@ -191,7 +191,9 @@ function Connect(props) {
 
   const connectToMetaMaskFlask = async (isloadBalance) => {
     setNetWorkState(value)
-    await WALLET.MetamaskFlask.methods.connectToSnap()
+    await WALLET.MetamaskFlask.methods.connectToSnap().catch((_err) => {
+      setLoading(false)
+    })
     await WALLET.MetamaskFlask.methods.SwitchNetwork(value)
     const accountInfor = await WALLET.MetamaskFlask.methods.getAccountInfors()
     dispatch(login())
