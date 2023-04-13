@@ -1,10 +1,10 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-undef */
 import React, { useState, useEffect } from 'react'
-import { Form, Button, Card, Input, Radio, Collapse, Skeleton } from 'antd'
-import { CaretUpOutlined } from '@ant-design/icons'
-import InputPrice from '../input'
-import { blockInvalidChar } from '../../utils/utils'
+import { Form, Button, Card, Input, Collapse, Col, Row } from 'antd'
+// import { CaretUpOutlined } from '@ant-design/icons'
+// import InputPrice from '../input'
+// import { blockInvalidChar } from '../../utils/utils'
 import { WALLET } from '../../services/multipleWallet'
 import { useAppSelector } from '../../hooks/redux'
 import { getZkbody, getzkState } from '../../services/zkapp'
@@ -18,10 +18,9 @@ const SendZkapp = () => {
   const [loading, setLoading] = useState(false)
   const [open, setOpen] = useState(false)
   const [sendMessageResult, setSendMessageResult] = useState('')
-  const [warning, setWarning] = useState('')
+  // const [warning, setWarning] = useState('')
   const [placeholder, setPlaceholder] = useState('0.0101')
   const [, forceUpdate] = useState({})
-  const [zkState, setzkState] = useState(null)
   const [loadingGetStateZkap, setLoadingGetStateZkap] = useState(false)
 
   const { isInstalledWallet, connected } = useAppSelector(
@@ -32,22 +31,18 @@ const SendZkapp = () => {
     forceUpdate({})
   }, [])
 
-
-  useEffect(() => {
-    (async () => {
-      const wallet = localStorage.getItem('wallet')
-      if (connected && wallet === 'Auro') {
-        setLoadingGetStateZkap(true)
-        const zkState = await getzkState()
-        setLoadingGetStateZkap(false)
-        setzkState(zkState)
-      }
-    })();
-  }, []);
-
   const layout = {
-    labelCol: { span: 6 },
-    wrapperCol: { span: 18 }
+    labelCol: { span: 8 },
+    wrapperCol: { span: 16 }
+  }
+
+  const getStateZkapp = async () => {
+    if (!connected) return setSendMessageResult('Please connect wallet!')
+    setSendMessageResult('')
+    setLoadingGetStateZkap(true)
+    const zkState = await getzkState()
+    setLoadingGetStateZkap(false)
+    setSendMessageResult(zkState)
   }
 
   const sendButton = async () => {
@@ -65,24 +60,46 @@ const SendZkapp = () => {
         setSendMessageResult(JSON.stringify(zkBody))
       } else {
         try {
-          const result = await WALLET.Auro.methods
-            .SendTransactionZkApp({
-              transaction: zkBody.partiesJsonUpdate,
-              feePayer: {
-                memo: values.signPartyMemo || '',
-                fee: fee
-              }
-            })
-            .catch((_err) => {
+          if (wallet === 'Auro') {
+            const result = await WALLET.Auro.methods
+              .SendTransactionZkApp({
+                transaction: zkBody.partiesJsonUpdate,
+                feePayer: {
+                  memo: values.signPartyMemo || '',
+                  fee: fee
+                }
+              })
+              .catch((_err) => {
+                setLoading(false)
+                setSendMessageResult(JSON.stringify(_err))
+              })
+            if (result.hash) {
               setLoading(false)
-              setSendMessageResult(JSON.stringify(_err))
-            })
-          if (result.hash) {
-            setLoading(false)
-            setSendMessageResult(JSON.stringify(result))
+              setSendMessageResult(JSON.stringify(result))
+            } else {
+              setLoading(false)
+              setSendMessageResult(result.message)
+            }
           } else {
-            setLoading(false)
-            setSendMessageResult(result.message)
+            const result = await WALLET.MetamaskFlask.methods
+              .SendTransactionZkApp({
+                transaction: zkBody.partiesJsonUpdate,
+                feePayer: {
+                  memo: values.signPartyMemo || '',
+                  fee: fee
+                }
+              })
+              .catch((_err) => {
+                setLoading(false)
+                setSendMessageResult(JSON.stringify(_err))
+              })
+            if (result.hash) {
+              setLoading(false)
+              setSendMessageResult(JSON.stringify(result))
+            } else {
+              setLoading(false)
+              setSendMessageResult(result.message)
+            }
           }
         } catch (error) {
           setLoading(false)
@@ -124,18 +141,18 @@ const SendZkapp = () => {
         hideRequiredMark
       >
         <Form.Item
-          label={loadingGetStateZkap ? <Skeleton /> :`${zkState} + ${new Date().getUTCDay()} = ?`}
+          label='Input correct state?'
           name='answer'
           rules={[
             {
               required: true,
-              message: 'Please input Aswer!'
+              message: 'Please input Parameter!'
             }
           ]}
         >
-          <Input placeholder='' />
+          <Input placeholder='Parameter' />
         </Form.Item>
-        <Form.Item
+        {/* <Form.Item
           label='Memo (Optional)'
           name='signPartyMemo'
           rules={[
@@ -215,29 +232,49 @@ const SendZkapp = () => {
               onChange={handleChangeFeeInput}
             />
           </Form.Item>
-        </div>
+        </div> */}
         <div className='submit-section'>
-          <Form.Item
-            className='bg-white'
-            wrapperCol={{ span: 24, offset: 0 }}
-            shouldUpdate
-          >
-            {() => (
-              <Button
-                loading={loading}
-                type='primary'
-                htmlType='submit'
-                block
-                disabled={
-                  !form.getFieldValue('answer') ||
-                  !!form.getFieldsError().filter(({ errors }) => errors.length)
-                    .length
-                }
+          <Row gutter={[16, 16]}>
+            <Col span={12}>
+              <Form.Item
+                className='bg-white'
+                shouldUpdate
+                wrapperCol={{ span: 24, offset: 0 }}
               >
-                Send
-              </Button>
-            )}
-          </Form.Item>
+                {() => (
+                  <Button
+                    loading={loading}
+                    type='primary'
+                    htmlType='submit'
+                    disabled={
+                      !form.getFieldValue('answer') ||
+                      !!form
+                        .getFieldsError()
+                        .filter(({ errors }) => errors.length).length
+                    }
+                    block
+                  >
+                    Send
+                  </Button>
+                )}
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                className='bg-white'
+                wrapperCol={{ span: 24, offset: 0 }}
+              >
+                <Button
+                  loading={loadingGetStateZkap}
+                  type='primary'
+                  onClick={getStateZkapp}
+                  block
+                >
+                  Check current state
+                </Button>
+              </Form.Item>
+            </Col>
+          </Row>
         </div>
       </Form>
       <p className='info-text alert alert-secondary mt-3 text-break'>

@@ -32,7 +32,7 @@ const senderAddress = 'B62qqQXYTh8zAoSNS9Nf5mBkA2MxdC7WpbzMd6S1cwtNPzzwD582eDr'
 const zkAppPrivateKey =
   'B62qm3p1ZGw3xiWu4x6bfrF2FS4kj2bp1qrHkdM9rr9WscP3g6qNcb6'
 // This should be removed once the zkAppAddress is updated.
-const zkAppAddress = 'B62qifGchLsKXXMWGi8U7WSYjN31tpV53YvrAAunqVhbXB1VnnzM39j'
+const zkAppAddress = 'B62qrKb58paJEFKWckFZg97aRjk7Bn4cGhzYd5XNjVF7DZGw6eSCWUn'
 
 // const url = `https://berkeley.minaexplorer.com/wallet/${zkAppAddress}`
 
@@ -139,8 +139,6 @@ export async function getzkState() {
 
     toc()
 
-    // compile
-
     tic('begin compile')
 
     const compile = await Quiz.compile()
@@ -149,11 +147,13 @@ export async function getzkState() {
 
     toc()
 
-    // transaction
-
     tic('zkState')
 
     const zkState = zkApp.num.get().toString()
+
+    console.log(zkState);
+
+    toc()
 
     return zkState
   } catch (error) {
