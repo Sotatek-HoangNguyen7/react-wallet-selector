@@ -253,6 +253,7 @@ const SendZkapp = () => {
                         .getFieldsError()
                         .filter(({ errors }) => errors.length).length
                     }
+                    block
                   >
                     Send
                   </Button>
@@ -268,6 +269,7 @@ const SendZkapp = () => {
                   loading={loadingGetStateZkap}
                   type='primary'
                   onClick={getStateZkapp}
+                  block
                 >
                   Check current state
                 </Button>

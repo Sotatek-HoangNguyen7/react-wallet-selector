@@ -153,6 +153,7 @@ function Connect(props) {
         } else dispatch(setWalletInstalled(false))
       } catch (e) {
         dispatch(setWalletInstalled(false))
+        setLoading(false)
       }
     }
   }
@@ -191,23 +192,25 @@ function Connect(props) {
   }
 
   const connectToMetaMaskFlask = async (isloadBalance) => {
-    setNetWorkState(value)
-    await WALLET.MetamaskFlask.methods.connectToSnap().catch((_err) => {
+    try {
+      setNetWorkState(value)
+      await WALLET.MetamaskFlask.methods.connectToSnap()
+      await WALLET.MetamaskFlask.methods.SwitchNetwork(value)
+      const accountInfor = await WALLET.MetamaskFlask.methods.getAccountInfors()
+      dispatch(login())
+      dispatch(
+        setActiveAccount({
+          activeAccount: accountInfor.publicKey,
+          balance: ethers.utils.formatUnits(accountInfor.balance.total, 'gwei'),
+          accountName: accountInfor.name,
+          inferredNonce: accountInfor.inferredNonce
+        })
+      )
+      if (isloadBalance) setLoadingBalance(false)
       setLoading(false)
-    })
-    await WALLET.MetamaskFlask.methods.SwitchNetwork(value)
-    const accountInfor = await WALLET.MetamaskFlask.methods.getAccountInfors()
-    dispatch(login())
-    dispatch(
-      setActiveAccount({
-        activeAccount: accountInfor.publicKey,
-        balance: ethers.utils.formatUnits(accountInfor.balance.total, 'gwei'),
-        accountName: accountInfor.name,
-        inferredNonce: accountInfor.inferredNonce
-      })
-    )
-    if (isloadBalance) setLoadingBalance(false)
-    setLoading(false)
+    } catch (error) {
+      setLoading(false)
+    }
   }
 
   const handleConnect = async () => {
