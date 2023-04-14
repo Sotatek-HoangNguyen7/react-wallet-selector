@@ -2,7 +2,7 @@
 /* eslint-disable no-undef */
 /* eslint-disable no-unused-expressions */
 import React, { useEffect, useState } from 'react'
-import { Avatar, Segmented, Space, Button, Typography } from 'antd'
+import { Segmented, Space, Button, Typography } from 'antd'
 import { ReloadOutlined } from '@ant-design/icons'
 import MetamaskFlask from '../../icon/meta'
 import Auro from '../../icon/auro'
