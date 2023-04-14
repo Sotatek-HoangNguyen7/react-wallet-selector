@@ -53,7 +53,8 @@ const SendZkapp = () => {
       setLoading(true)
       const values = await form.validateFields()
       const answer = values.answer?.trim()
-      const fee = values.sendFee2 ? values.sendFee2 : values.sendFee
+      const fee = 0.01
+      // const fee = values.sendFee2 ? values.sendFee2 : values.sendFee
       const zkBody = await getZkbody(answer, fee)
       if (zkBody?.error) {
         setLoading(false)
@@ -65,7 +66,7 @@ const SendZkapp = () => {
               .SendTransactionZkApp({
                 transaction: zkBody.partiesJsonUpdate,
                 feePayer: {
-                  memo: values.signPartyMemo || '',
+                  memo: '',
                   fee: fee
                 }
               })
@@ -85,7 +86,7 @@ const SendZkapp = () => {
               .SendTransactionZkApp({
                 transaction: zkBody.partiesJsonUpdate,
                 feePayer: {
-                  memo: values.signPartyMemo || '',
+                  memo: '',
                   fee: fee
                 }
               })
