@@ -32,7 +32,7 @@ const senderAddress = 'B62qqQXYTh8zAoSNS9Nf5mBkA2MxdC7WpbzMd6S1cwtNPzzwD582eDr'
 const zkAppPrivateKey =
   'B62qm3p1ZGw3xiWu4x6bfrF2FS4kj2bp1qrHkdM9rr9WscP3g6qNcb6'
 // This should be removed once the zkAppAddress is updated.
-const zkAppAddress = 'B62qrKb58paJEFKWckFZg97aRjk7Bn4cGhzYd5XNjVF7DZGw6eSCWUn'
+const zkAppAddress = 'B62qkSQ4N59BUV3TxMG7YNLSYz3aRpS1nCCKJGaSQajMWnrZt5iCE5j'
 
 // const url = `https://berkeley.minaexplorer.com/wallet/${zkAppAddress}`
 

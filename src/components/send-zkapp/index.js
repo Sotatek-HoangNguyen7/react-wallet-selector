@@ -60,51 +60,43 @@ const SendZkapp = () => {
         setLoading(false)
         setSendMessageResult(JSON.stringify(zkBody))
       } else {
-        try {
-          if (wallet === 'Auro') {
-            const result = await WALLET.Auro.methods
-              .SendTransactionZkApp({
-                transaction: zkBody.partiesJsonUpdate,
-                feePayer: {
-                  memo: '',
-                  fee: fee
-                }
-              })
-              .catch((_err) => {
-                setLoading(false)
-                setSendMessageResult(JSON.stringify(_err))
-              })
-            if (result.hash) {
+        if (wallet === 'Auro') {
+          try {
+            const result = await WALLET.Auro.methods.SendTransactionZkApp({
+              transaction: zkBody.partiesJsonUpdate,
+              feePayer: {
+                memo: '',
+                fee: fee
+              }
+            })
+            if (result) {
               setLoading(false)
               setSendMessageResult(JSON.stringify(result))
-            } else {
-              setLoading(false)
-              setSendMessageResult(result.message)
             }
-          } else {
-            const result = await WALLET.MetamaskFlask.methods
-              .SendTransactionZkApp({
-                transaction: zkBody.partiesJsonUpdate,
-                feePayer: {
-                  memo: '',
-                  fee: fee
-                }
-              })
-              .catch((_err) => {
-                setLoading(false)
-                setSendMessageResult(JSON.stringify(_err))
-              })
-            if (result.hash) {
-              setLoading(false)
-              setSendMessageResult(JSON.stringify(result))
-            } else {
-              setLoading(false)
-              setSendMessageResult(result.message)
-            }
+          } catch (error) {
+            setLoading(false)
+            console.log(error)
+            setSendMessageResult(JSON.stringify(error))
           }
-        } catch (error) {
-          setLoading(false)
-          setSendMessageResult(JSON.stringify(error))
+        } else {
+          try {
+            const result =
+              await WALLET.MetamaskFlask.methods.SendTransactionZkApp({
+                transaction: zkBody.partiesJsonUpdate,
+                feePayer: {
+                  memo: '',
+                  fee: fee
+                }
+              })
+            if (result) {
+              setLoading(false)
+              setSendMessageResult(JSON.stringify(result))
+            }
+          } catch (error) {
+            setLoading(false)
+            console.log(error)
+            setSendMessageResult(JSON.stringify(error))
+          }
         }
       }
     } catch (errorInfo) {}
