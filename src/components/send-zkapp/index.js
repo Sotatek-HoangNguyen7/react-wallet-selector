@@ -1,8 +1,8 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-undef */
 import React, { useState, useEffect } from 'react'
-import { Form, Button, Card, Input, Collapse, Col, Row } from 'antd'
-// import { CaretUpOutlined } from '@ant-design/icons'
+import { Form, Button, Card, Input, Collapse, Col, Row, Tooltip } from 'antd'
+import { InfoOutlined } from '@ant-design/icons'
 // import InputPrice from '../input'
 // import { blockInvalidChar } from '../../utils/utils'
 import { WALLET } from '../../services/multipleWallet'
@@ -135,7 +135,22 @@ const SendZkapp = () => {
         labelWrap
       >
         <Form.Item
-          label='Can you input correct state?'
+          label={
+            <span>
+              Can you input correct state?{' '}
+              <Tooltip title={
+                <div>
+                  <div>Correct state calculation formula</div>
+                  <div>Correct state = the square of the Current state</div>
+                  <div>e.g.</div>
+                  <div>Current state (checked) = 3;</div>
+                  <div>Correct state = 3*3 = 9</div>
+                </div>
+              } color='#727272'>
+                <InfoOutlined />
+              </Tooltip>
+            </span>
+          }
           name='answer'
           rules={[
             {

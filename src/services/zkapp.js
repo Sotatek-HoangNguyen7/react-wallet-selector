@@ -10,7 +10,7 @@ import {
   setGraphqlEndpoint
 } from 'snarkyjs'
 
-import { Quiz } from './contract/Quiz'
+import { Square } from './contract/Quiz'
 
 let timingStack = []
 let i = 0
@@ -38,7 +38,7 @@ export async function getZkbody(answer) {
 
     const address = PublicKey.fromBase58(zkAppAddress)
 
-    const zkApp = new Quiz(address)
+    const zkApp = new Square(address)
 
     console.log('zkApp', zkApp)
 
@@ -56,7 +56,7 @@ export async function getZkbody(answer) {
 
     tic('begin compile')
 
-    const compile = await Quiz.compile()
+    const compile = await Square.compile()
 
     console.log("compile", compile)
 
@@ -113,7 +113,7 @@ export async function getzkState() {
 
     const address = PublicKey.fromBase58(zkAppAddress)
 
-    const zkApp = new Quiz(address)
+    const zkApp = new Square(address)
 
     console.log('zkApp', zkApp)
 
@@ -129,7 +129,7 @@ export async function getzkState() {
 
     tic('begin compile')
 
-    const compile = await Quiz.compile()
+    const compile = await Square.compile()
 
     console.log("compile", compile)
 
