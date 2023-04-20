@@ -12,7 +12,7 @@ import {
 
 import { Square } from './contract/Quiz'
 
-let timingStack = []
+const timingStack = []
 let i = 0
 
 function tic(label = `Run command ${i++}`) {
@@ -21,14 +21,12 @@ function tic(label = `Run command ${i++}`) {
 }
 
 function toc() {
-  let [label, start] = timingStack.pop()
-  let time = (Date.now() - start) / 1000
+  const [label, start] = timingStack.pop()
+  const time = (Date.now() - start) / 1000
   console.log(`\r${label}... ${time.toFixed(3)} sec\n`)
 }
 
-const zkAppAddress = 'B62qoTyWQjipMkRHe2EbVnAjaJ8NuV1u3EzsERmH1ArxZQSYu4WYjou'
-
-export async function getZkbody(answer) {
+export async function getZkbody(answer, ADRESS) {
   try {
     tic('is ready')
     await isReady
@@ -36,7 +34,7 @@ export async function getZkbody(answer) {
 
     setGraphqlEndpoint('https://proxy.berkeley.minaexplorer.com/graphql')
 
-    const address = PublicKey.fromBase58(zkAppAddress)
+    const address = PublicKey.fromBase58(ADRESS)
 
     const zkApp = new Square(address)
 
@@ -46,7 +44,7 @@ export async function getZkbody(answer) {
 
     tic('fetch account', address)
 
-    const res = await fetchAccount({ publicKey: zkAppAddress })
+    const res = await fetchAccount({ publicKey: ADRESS })
 
     if (res?.account) console.log(res?.account)
 
@@ -58,7 +56,7 @@ export async function getZkbody(answer) {
 
     const compile = await Square.compile()
 
-    console.log("compile", compile)
+    console.log('compile', compile)
 
     toc()
 
@@ -103,7 +101,7 @@ export async function getZkbody(answer) {
   }
 }
 
-export async function getzkState() {
+export async function getzkState(ADRESS) {
   try {
     tic('is ready')
     await isReady
@@ -111,7 +109,7 @@ export async function getzkState() {
 
     setGraphqlEndpoint('https://proxy.berkeley.minaexplorer.com/graphql')
 
-    const address = PublicKey.fromBase58(zkAppAddress)
+    const address = PublicKey.fromBase58(ADRESS)
 
     const zkApp = new Square(address)
 
@@ -121,7 +119,7 @@ export async function getzkState() {
 
     tic('fetch account', address)
 
-    const res = await fetchAccount({ publicKey: zkAppAddress })
+    const res = await fetchAccount({ publicKey: ADRESS })
 
     if (res?.account) console.log(res?.account)
 
@@ -131,7 +129,7 @@ export async function getzkState() {
 
     const compile = await Square.compile()
 
-    console.log("compile", compile)
+    console.log('compile', compile)
 
     toc()
 
@@ -139,7 +137,7 @@ export async function getzkState() {
 
     const zkState = zkApp.num.get().toString()
 
-    console.log(zkState);
+    console.log(zkState)
 
     toc()
 
@@ -148,4 +146,3 @@ export async function getzkState() {
     return null
   }
 }
-

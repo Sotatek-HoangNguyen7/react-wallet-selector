@@ -30,10 +30,10 @@ export const SignWallet = ({ children, data }) => {
   )
 }
 
-export const SendtTransactionZkapp = ({ children, data }) => {
+export const SendtTransactionZkapp = ({ children, data, zkAppAddress }) => {
   return (
     <AppProvider>
-      <SendZkapp data={data} />
+      <SendZkapp data={data} zkAppAddress={zkAppAddress} />
     </AppProvider>
   )
 }
@@ -55,5 +55,6 @@ SignWallet.propTypes = {
 
 SendtTransactionZkapp.propTypes = {
   children: PropTypes.node,
-  data: PropTypes.func
+  data: PropTypes.func,
+  zkAppAddress: PropTypes.string
 }

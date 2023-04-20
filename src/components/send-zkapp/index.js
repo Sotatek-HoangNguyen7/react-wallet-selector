@@ -2,7 +2,7 @@
 /* eslint-disable no-undef */
 import React, { useState, useEffect } from 'react'
 import { Form, Button, Card, Input, Collapse, Col, Row, Tooltip } from 'antd'
-import { InfoOutlined } from '@ant-design/icons'
+import { InfoCircleOutlined } from '@ant-design/icons'
 // import InputPrice from '../input'
 // import { blockInvalidChar } from '../../utils/utils'
 import { WALLET } from '../../services/multipleWallet'
@@ -10,10 +10,11 @@ import { useAppSelector } from '../../hooks/redux'
 import { getZkbody, getzkState } from '../../services/zkapp'
 import '../../../node_modules/bootstrap/dist/css/bootstrap.min.css'
 import '../../../src/styles.css'
+import { prop } from 'snarkyjs'
 
 const { Panel } = Collapse
 
-const SendZkapp = () => {
+const SendZkapp = (props) => {
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
   const [open, setOpen] = useState(false)
@@ -22,6 +23,7 @@ const SendZkapp = () => {
   const [placeholder, setPlaceholder] = useState('0.0101')
   const [, forceUpdate] = useState({})
   const [loadingGetStateZkap, setLoadingGetStateZkap] = useState(false)
+  const { zkAppAddress } = props
 
   const { isInstalledWallet, connected } = useAppSelector(
     (state) => state.wallet
@@ -40,7 +42,7 @@ const SendZkapp = () => {
     if (!connected) return setSendMessageResult('Please connect wallet!')
     setSendMessageResult('')
     setLoadingGetStateZkap(true)
-    const zkState = await getzkState()
+    const zkState = await getzkState(zkAppAddress)
     setLoadingGetStateZkap(false)
     setSendMessageResult(zkState)
   }
@@ -55,7 +57,7 @@ const SendZkapp = () => {
       const answer = values.answer?.trim()
       const fee = 0.01
       // const fee = values.sendFee2 ? values.sendFee2 : values.sendFee
-      const zkBody = await getZkbody(answer, fee)
+      const zkBody = await getZkbody(answer, zkAppAddress)
       if (zkBody?.error) {
         setLoading(false)
         setSendMessageResult(JSON.stringify(zkBody))
@@ -135,22 +137,7 @@ const SendZkapp = () => {
         labelWrap
       >
         <Form.Item
-          label={
-            <span>
-              Can you input correct state?{' '}
-              <Tooltip title={
-                <div>
-                  <div>Correct state calculation formula</div>
-                  <div>Correct state = the square of the Current state</div>
-                  <div>e.g.</div>
-                  <div>Current state (checked) = 3;</div>
-                  <div>Correct state = 3*3 = 9</div>
-                </div>
-              } color='#727272'>
-                <InfoOutlined />
-              </Tooltip>
-            </span>
-          }
+          label='Can you input correct state?'
           name='answer'
           rules={[
             {
@@ -159,7 +146,60 @@ const SendZkapp = () => {
             }
           ]}
         >
-          <Input placeholder='Parameter' />
+          <Input
+            placeholder='Parameter'
+            suffix={
+              <Tooltip
+                overlayStyle={{ width: 290 }}
+                title={
+                  <div>
+                    <div style={{ fontSize: '12px', fontWeight: 600 }}>
+                      Correct state calculation formula
+                    </div>
+                    <div
+                      style={{
+                        fontSize: '12px',
+                        fontStyle: 'italic',
+                        fontWeight: 400
+                      }}
+                    >
+                      Correct state = the square of the Current state
+                    </div>
+                    <div
+                      style={{
+                        fontSize: '12px',
+                        fontStyle: 'italic',
+                        fontWeight: 400
+                      }}
+                    >
+                      e.g.
+                    </div>
+                    <div
+                      style={{
+                        fontSize: '12px',
+                        fontStyle: 'italic',
+                        fontWeight: 400
+                      }}
+                    >
+                      Current state (checked) = 3;
+                    </div>
+                    <div
+                      style={{
+                        fontSize: '12px',
+                        fontStyle: 'italic',
+                        fontWeight: 400
+                      }}
+                    >
+                      Correct state = 3*3 = 9
+                    </div>
+                  </div>
+                }
+                color='#727272'
+              >
+                <InfoCircleOutlined />
+              </Tooltip>
+            }
+          />
         </Form.Item>
         {/* <Form.Item
           label='Memo (Optional)'
