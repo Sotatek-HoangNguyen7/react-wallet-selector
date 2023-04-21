@@ -15,7 +15,7 @@ npm install --save react-wallet-selector
 ```jsx
 import React, { Component } from 'react'
 
-import { SelectWallet, SendtTransactionZkapp, SendWallet, SignWallet } from "react-wallet-selector";
+import { SelectWallet, SendTransactionZkapp, SendWallet, SignWallet } from "react-wallet-selector";
 import "../node_modules/react-wallet-selector/dist/index.min.css";
 import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
 
@@ -30,7 +30,7 @@ class Example extends Component {
           <div className="col-4">
             <SignWallet />
             <br />
-            <SendtTransactionZkapp zkAppAddress="" />
+            <SendTransactionZkapp zkAppAddress="" />
           </div>
           <div className="col-4">
             <SendWallet />
