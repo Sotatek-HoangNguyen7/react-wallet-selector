@@ -30,7 +30,7 @@ class Example extends Component {
           <div className="col-4">
             <SignWallet />
             <br />
-            <SendtTransactionZkapp />
+            <SendtTransactionZkapp zkAppAddress="" />
           </div>
           <div className="col-4">
             <SendWallet />
