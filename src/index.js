@@ -5,6 +5,9 @@ import Send from './components/send'
 import Sign from './components/sign'
 import SendZkapp from './components/send-zkapp'
 import AppProvider from './provider'
+import { WALLET } from './services/multipleWallet'
+
+export const methods = WALLET
 
 export const SelectWallet = ({ children, data }) => {
   return (
@@ -30,19 +33,12 @@ export const SignWallet = ({ children, data }) => {
   )
 }
 
-export const SendTransactionZkapp = ({
-  children,
-  data,
-  zkAppAddress,
-  checkConnect = () => false
-}) => {
+export const SendTransactionZkapp = ({ children, data, zkAppAddress }) => {
   return (
     <AppProvider>
-      <SendZkapp
-        data={data}
-        zkAppAddress={zkAppAddress}
-        checkConnect={checkConnect}
-      />
+      <SendZkapp data={data} zkAppAddress={zkAppAddress}>
+        {children}
+      </SendZkapp>
     </AppProvider>
   )
 }
@@ -65,6 +61,5 @@ SignWallet.propTypes = {
 SendTransactionZkapp.propTypes = {
   children: PropTypes.node,
   data: PropTypes.func,
-  zkAppAddress: PropTypes.string,
-  checkConnect: PropTypes.func
+  zkAppAddress: PropTypes.string
 }

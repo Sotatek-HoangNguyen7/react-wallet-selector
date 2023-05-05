@@ -5,7 +5,6 @@ import { Form, Button, Card, Input, Col, Row, Tooltip } from 'antd'
 import { InfoCircleOutlined } from '@ant-design/icons'
 import { WALLET } from '../../services/multipleWallet'
 import { useAppSelector } from '../../hooks/redux'
-import { getZkbody, getzkState } from '../../services/zkapp'
 import '../../../node_modules/bootstrap/dist/css/bootstrap.min.css'
 import '../../../src/styles.css'
 
@@ -15,7 +14,7 @@ const SendZkapp = (props) => {
   const [sendMessageResult, setSendMessageResult] = useState('')
   const [, forceUpdate] = useState({})
   const [loadingGetStateZkap, setLoadingGetStateZkap] = useState(false)
-  const { zkAppAddress, children, checkConnect } = props
+  const { zkAppAddress } = props
 
   const { isInstalledWallet, connected } = useAppSelector(
     (state) => state.wallet
@@ -23,10 +22,6 @@ const SendZkapp = (props) => {
 
   useEffect(() => {
     forceUpdate({})
-  }, [])
-
-  useEffect(() => {
-    checkConnect(connected)
   }, [])
 
   const layout = {
@@ -98,10 +93,6 @@ const SendZkapp = (props) => {
         }
       }
     } catch (errorInfo) {}
-  }
-
-  if (children) {
-    return <React.Fragment>{children}</React.Fragment>
   }
 
   return (
