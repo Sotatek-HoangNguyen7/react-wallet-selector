@@ -38,8 +38,6 @@ export async function getZkbody(answer, ADRESS) {
 
     const zkApp = new Square(address)
 
-    console.log('zkApp', zkApp)
-
     // account
 
     tic('fetch account', address)
