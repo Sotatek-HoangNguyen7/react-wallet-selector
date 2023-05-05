@@ -15,7 +15,7 @@ const SendZkapp = (props) => {
   const [sendMessageResult, setSendMessageResult] = useState('')
   const [, forceUpdate] = useState({})
   const [loadingGetStateZkap, setLoadingGetStateZkap] = useState(false)
-  const { zkAppAddress } = props
+  const { zkAppAddress, children, checkConnect } = props
 
   const { isInstalledWallet, connected } = useAppSelector(
     (state) => state.wallet
@@ -23,6 +23,10 @@ const SendZkapp = (props) => {
 
   useEffect(() => {
     forceUpdate({})
+  }, [])
+
+  useEffect(() => {
+    checkConnect(connected)
   }, [])
 
   const layout = {
@@ -94,6 +98,10 @@ const SendZkapp = (props) => {
         }
       }
     } catch (errorInfo) {}
+  }
+
+  if (children) {
+    return <React.Fragment>{children}</React.Fragment>
   }
 
   return (

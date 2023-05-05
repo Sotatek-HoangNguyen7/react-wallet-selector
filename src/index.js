@@ -30,10 +30,19 @@ export const SignWallet = ({ children, data }) => {
   )
 }
 
-export const SendTransactionZkapp = ({ children, data, zkAppAddress }) => {
+export const SendTransactionZkapp = ({
+  children,
+  data,
+  zkAppAddress,
+  checkConnect = () => false
+}) => {
   return (
     <AppProvider>
-      <SendZkapp data={data} zkAppAddress={zkAppAddress} />
+      <SendZkapp
+        data={data}
+        zkAppAddress={zkAppAddress}
+        checkConnect={checkConnect}
+      />
     </AppProvider>
   )
 }
@@ -56,5 +65,6 @@ SignWallet.propTypes = {
 SendTransactionZkapp.propTypes = {
   children: PropTypes.node,
   data: PropTypes.func,
-  zkAppAddress: PropTypes.string
+  zkAppAddress: PropTypes.string,
+  checkConnect: PropTypes.func
 }
