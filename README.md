@@ -15,7 +15,7 @@ npm install --save react-wallet-selector
 ```jsx
 import React, { Component } from 'react'
 
-import { SelectWallet, SendTransactionZkapp, SendWallet, SignWallet } from "react-wallet-selector";
+import { SelectWallet, SendTransactionZkapp, SendWallet, SignWallet, methods } from "react-wallet-selector";
 import "../node_modules/react-wallet-selector/dist/index.min.css";
 import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
 

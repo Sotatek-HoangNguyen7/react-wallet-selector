@@ -6,8 +6,11 @@ import Sign from './components/sign'
 import SendZkapp from './components/send-zkapp'
 import AppProvider from './provider'
 import { WALLET } from './services/multipleWallet'
+import useCheckConnect from './hooks/useCheckConnect'
 
 export const methods = WALLET
+
+export const hooks = useCheckConnect
 
 export const SelectWallet = ({ children, data }) => {
   return (
